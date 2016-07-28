@@ -1,0 +1,148 @@
+production:
+  hybridauth:
+    debug_mode: FALSE
+    debug_file: "/tmp/hybridauth.log"
+
+# OP
+    providers:
+      MarvelousMembers:
+        enabled: TRUE
+      Google:
+        enabled: TRUE          
+        keys:
+          id: "hoge"
+          secret: "piyo"
+      Facebook:
+        enabled: TRUE
+        keys:
+          id: "hoge"
+          secret: "piyo"
+        # デフォルトでは認可情報が多すぎるので、最小限に変更
+        scope: "email"
+      Dummy1:
+        enabled: TRUE
+      Dummy2:
+        enabled: TRUE
+      Dummy3:
+        enabled: TRUE
+      Dummy4:
+        enabled: TRUE
+      Dummy5:
+        enabled: TRUE
+staging:
+  hybridauth:
+    debug_mode: FALSE
+    debug_file: "/home/depuser/misp/hybridauth.log"
+
+    providers:
+      MarvelousMembers:
+        enabled: TRUE
+      Google:
+        enabled: TRUE
+        keys:
+          id: "hoge"
+          secret: "piyo"
+      Facebook:
+        enabled: TRUE
+        keys:
+          id: "hoge"
+          secret: "piyo"
+        scope: "email"
+      Dummy1:
+        enabled: TRUE
+      Dummy2:
+        enabled: TRUE
+      Dummy3:
+        enabled: TRUE
+      Dummy4:
+        enabled: TRUE
+      Dummy5:
+        enabled: TRUE
+development:
+  hybridauth:
+    debug_mode: FALSE
+    debug_file: "/tmp/hybridauth_dev.log"
+
+    providers:
+      MarvelousMembers:
+        enabled: TRUE
+      Google:
+        enabled: TRUE
+        keys:
+          id: "hoge"
+          secret: "piyo"
+      Facebook:
+        enabled: TRUE
+        keys:
+          id: "hoge"
+          secret: "piyo"
+        scope: "email"
+      Dummy1:
+        enabled: TRUE
+      Dummy2:
+        enabled: TRUE
+      Dummy3:
+        enabled: TRUE
+      Dummy4:
+        enabled: TRUE
+      Dummy5:
+        enabled: TRUE
+testing:
+  hybridauth:
+    debug_mode: FALSE
+    debug_file: "/home/depuser/misp/hybridauth.log"
+
+    providers:
+      MarvelousMembers:
+        enabled: TRUE
+      Google:
+        enabled: TRUE
+        keys:
+          id: "hoge"
+          secret: "piyo"
+      Facebook:
+        enabled: TRUE
+        keys:
+          id: "hoge"
+          secret: "piyo"
+        scope: "email"
+      Dummy1:
+        enabled: TRUE
+      Dummy2:
+        enabled: TRUE
+      Dummy3:
+        enabled: TRUE
+      Dummy4:
+        enabled: TRUE
+      Dummy5:
+        enabled: TRUE
+standby:
+  hybridauth:
+    debug_mode: FALSE
+    debug_file: "/home/depuser/misp/hybridauth.log"
+
+    providers:
+      MarvelousMembers:
+        enabled: TRUE
+      Google:
+        enabled: TRUE          
+        keys:
+          id: "hoge"
+          secret: "piyo"
+      Facebook:
+        enabled: TRUE
+        keys:
+          id: "hoge"
+          secret: "piyo"
+        # デフォルトでは認可情報が多すぎるので、最小限に変更
+        scope: "email"
+      Dummy1:
+        enabled: TRUE
+      Dummy2:
+        enabled: TRUE
+      Dummy3:
+        enabled: TRUE
+      Dummy4:
+        enabled: TRUE
+      Dummy5:
+        enabled: TRUE

@@ -1,0 +1,91 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: MISP\n"
+"POT-Creation-Date: 2014-07-01 12:14+0900\n"
+"PO-Revision-Date: 2016-01-28 10:42+0900\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.7\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: C:\\standardization\\svn\\PF\\MISP\\trunk\\application"
+"\\modules\\marvelous\n"
+
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/index.phtml:26
+#, php-format
+msgid ""
+"Your ID federation between %1$s and Marvelous Connect is the following "
+"conditions."
+msgstr ""
+
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/index.phtml:64
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/login.phtml:40
+msgid "Back"
+msgstr ""
+
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/index.phtml:67
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/login.phtml:43
+msgid "http://www.marv.jp/privacy_policy/"
+msgstr "http://www.marv.jp/english/privacyprotection/"
+
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/index.phtml:67
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/login.phtml:43
+msgid "Privacy Policy"
+msgstr "Privacy Protection"
+
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/index.phtml:91
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/index.phtml:119
+msgid "ID federation confirmation"
+msgstr ""
+
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/index.phtml:93
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/index.phtml:121
+msgid "ID federation with "
+msgstr ""
+
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/index.phtml:93
+msgid " will be done"
+msgstr ""
+
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/index.phtml:93
+msgid "<br>(After the ID federation, the app will be relaunched)."
+msgstr ""
+
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/index.phtml:102
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/index.phtml:130
+msgid "Cancel"
+msgstr ""
+
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/index.phtml:111
+msgid "period"
+msgstr "."
+
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/index.phtml:114
+msgid "<br>(After the cancellation, login page will be reloaded)."
+msgstr ""
+
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/index.phtml:121
+msgid " will be canceled"
+msgstr ""
+
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/login.phtml:22
+#, php-format
+msgid "You can connect %1$s to Marvelous Connect with your ID federation."
+msgstr ""
+
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/login.phtml:23
+msgid ""
+"By connecting multiple apps with the same ID, you may be able to obtain "
+"benefits."
+msgstr ""
+
+#: C:\standardization\svn\PF\MISP\trunk\application\modules\marvelous/views/scripts/authorization/login.phtml:37
+msgid ""
+"No information about apps is posted to your timeline of each ID without your "
+"permission."
+msgstr ""

@@ -1,0 +1,56 @@
+<!DOCTYPE html> 
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="//code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css" />
+    <link type="text/css" href="/marvelous_resource/css/jquery.mobile.simpledialog.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/marvelous_resource/themes/jquery-mobile-marvelous.min.css">
+    <link type="text/css" href="/marvelous_resource/css/style.css" rel="stylesheet"/>
+    <script src="//code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="//code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
+    <script src="/marvelous_resource/js/jquery.mobile.simpledialog2.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+</head>
+
+<body style="height:100%">
+    <div data-role="page">
+        <div data-role="header">
+            <h1 style ="width: 100%; margin-left:0"><img src="/marvelous_resource/img/marvelous.png" style="height: 24px; width: 24px; vertical-align: bottom"> Marvelous Connect</h1>
+        </div>
+        <div data-role="content">
+            <div>
+                <center>
+                    <div><?php printf($this->translate->_("You can connect %1\$s to Marvelous Connect with your ID federation."), $this->translate->_($this->applicationName)) ?></div>
+                    <div><?php print($this->translate->_("By connecting multiple apps with the same ID, you may be able to obtain benefits.")) ?></div>
+                </center>
+
+                <center>
+                    <?php
+                    foreach ($this->platforms as $platform) {
+                        $name = $platform->getPlatformName();
+
+                        if (!file_exists(implode(array(APPLICATION_PATH, '..', 'public', 'marvelous_resource', 'img', 'login', $this->translate->getLocale(), $name), DIRECTORY_SEPARATOR))) {
+                            continue;
+                        }
+
+                        $this->queryParams['platform_id'] = $platform->getPlatformId();
+                        echo sprintf('<div><a href="/marvelous/federation?%s"><img src="/marvelous_resource/img/login/%s/%s" style="margin:10px"></a></div>', http_build_query($this->queryParams), $this->translate->getLocale(), $name);
+                    }
+                    ?>
+                </center>
+
+                <center>
+                    <div><?php print($this->translate->_("No information about apps is posted to your timeline of each ID without your permission.")) ?></div>
+                </center>
+                <div>
+                    <a href="<?php echo $this->queryParams['redirect_uri'] ?>" data-role="button"  data-shadow="false"><?php print($this->translate->_("Back")); ?></a>
+                </div>
+                <div>
+                    <a href="<?php print($this->translate->_("http://www.marv.jp/privacy_policy/")) ?>" data-role="button" data-shadow="false"><?php print($this->translate->_("Privacy Policy")) ?></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $.mobile.ajaxEnabled = false;
+    </script>
+</body>

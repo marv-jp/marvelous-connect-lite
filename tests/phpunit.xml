@@ -1,0 +1,24 @@
+<phpunit bootstrap="./bootstrap.php">
+    <testsuite name="Application Test Suite">
+        <directory>./application</directory>
+    </testsuite>
+    <testsuite name="Library Test Suite">
+        <directory>./library</directory>
+    </testsuite>
+    
+    <filter>
+        <!-- If Zend Framework is inside your project's library, uncomment this filter -->
+        <whitelist>
+            <directory suffix=".php">../../library/Zend</directory>
+        </whitelist>
+    </filter>
+    
+    <!-- PHP INI 項目や定数、グローバル変数の設定 -->
+    <!-- 参考資料：http://www.phpunit.de/manual/3.6/ja/appendixes.configuration.html -->
+    <php>
+        <server name="SERVER_NAME" value="vm.starndardization"/>
+        <server name="SERVER_PORT" value="80"/>
+        <server name="REQUEST_URI" value=""/>
+    </php>
+    
+</phpunit>

@@ -1,0 +1,77 @@
+a, input, button {
+    -ms-touch-action: none !important;
+}
+
+#table-container {
+    border: 1px solid black;
+    border-radius: 4px;
+    overflow: auto;
+}
+
+#table-container > table {
+    margin: 0 auto;
+    border-spacing: 15px;
+}
+
+.onoffswitch {
+    position: relative; width: 81px;
+    -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+}
+
+.onoffswitch-checkbox {
+    display: none;
+}
+
+.onoffswitch-label {
+    display: block; overflow: hidden; cursor: pointer;
+    /*border: 2px solid #999999;*/ 
+    border-radius: 10px;
+}
+
+.onoffswitch-inner {
+    width: 200%; margin-left: -100%;
+    -moz-transition: margin 0.3s ease-in 0s; -webkit-transition: margin 0.3s ease-in 0s;
+    -o-transition: margin 0.3s ease-in 0s; transition: margin 0.3s ease-in 0s;
+}
+
+.onoffswitch-inner:before, .onoffswitch-inner:after {
+    float: left; width: 50%; height: 28px; padding: 0; line-height: 28px;
+    font-size: 14px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+    -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+    text-shadow: 0 0;
+}
+
+.onoffswitch-inner:before {
+    content: "ON";
+    padding-left: 9px;
+    background-color: #F5A925; 
+    color: #FFFFFF;
+}
+
+.onoffswitch-inner:after {
+    content: "OFF";
+    padding-right: 9px;
+    background-color: #DADADA; 
+    color: #999999;
+    text-align: right;
+}
+
+.onoffswitch-switch {
+    cursor:pointer;
+    width: 28px; margin: 0px;
+    height: 28px;
+    background: #FFFFFF;
+    /*border: 2px solid #999999;*/ 
+    border-radius: 10px;
+    position: absolute; top: 0; bottom: 0; right: 51px;
+    -moz-transition: all 0.3s ease-in 0s; -webkit-transition: all 0.3s ease-in 0s;
+    -o-transition: all 0.3s ease-in 0s; transition: all 0.3s ease-in 0s; 
+}
+
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+    margin-left: 0;
+}
+
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+    right: 1px;
+}

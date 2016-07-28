@@ -1,0 +1,69 @@
+# 例外ハンドラ－
+exception_handler:
+  # このプラグインを有効化するモジュール
+  # ハッシュ形式
+  #    ハッシュのキー名はモジュール名を記述してください
+  #    ハッシュの値は有効にする場合はPHPのTRUE値なら何でもOKです。無効にする場合は値に何も記述しないでください
+  #    デフォルトモジュール(application/controllers配下)を有効にする場合、ハッシュのキー名を「default」としてください。
+  #    全モジュールに対して有効にする場合は all: TRUE　と記述してください。
+  enable_modules:
+    all: TRUE
+    #sandbox: TRUE
+    #default: TRUE    
+  
+  # ロギングを除外する対象
+  #
+  # 指定したmodule内のすべてのactionを除外する場合
+  #- { module: sandbox}
+  # 指定したcontroller内のすべてのactionを除外する場合
+  #- { module: sandbox, controller: index}
+  # 指定したactionのみ除外する場合
+  #- { module: sandbox, controller: index, action: exclude }
+  excludes:    
+    - { module: sandbox, controller: index, action: exclude }
+
+# アクセスロギングフィルター
+access_logging_filter:
+  # このプラグインを有効化するモジュール
+  # ハッシュ形式
+  #    ハッシュのキー名はモジュール名を記述してください
+  #    ハッシュの値は有効にする場合はPHPのTRUE値なら何でもOKです。無効にする場合は値に何も記述しないでください
+  #    デフォルトモジュール(application/controllers配下)を有効にする場合、ハッシュのキー名を「default」としてください。
+  #    全モジュールに対して有効にする場合は all: TRUE　と記述してください。
+  enable_modules: 
+    all: TRUE
+    #sandbox: TRUE
+    #default: TRUE    
+
+  # ロギングを除外する対象
+  #
+  # 指定したmodule内のすべてのactionを除外する場合
+  #- { module: admin}
+  # 指定したcontroller内のすべてのactionを除外する場合
+  #- { module: admin, controller: index}
+  # 指定したactionのみ除外する場合
+  #- { module: sandbox, controller: index, action: exclude }
+  excludes:
+
+# 外部ロガー
+external_logger:
+  # ロギングする対象を限定する
+  #
+  # 指定したplatform内のすべてのAPIをロギングする場合
+  # - { platform: gree }
+  # 指定したAPIをロギングする場合
+  # - { platform: gree, api: "Common_External_Platform_Gree_Abstract::postPayment" }
+  #
+  # includes・excludesの双方が指定された場合は、excludesの設定が優越します。
+  includes:    
+
+  # ロギングを除外する対象
+  #
+  # 指定したplatform内のすべてのAPIを除外する場合
+  # - { platform: gree }
+  # 指定したAPIのみ除外する場合
+  # - { platform: gree, api: "Common_External_Platform_Gree_Abstract::getSelf" }
+  #
+  # includes・excludesの双方が指定された場合は、excludesの設定が優越します。
+  excludes:    
+

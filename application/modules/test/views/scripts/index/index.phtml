@@ -1,0 +1,877 @@
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+<script>
+    $(function () {
+        // 最初に隠して
+        $("#help > div").hide();
+
+        // 雑に開閉
+        $("#help > h3").click(function () {
+            $(this).next().slideToggle();
+        });
+
+        $("input[type=submit]").click(function () {
+            var anchor = $(this).attr('data-anchor');
+            $("form").attr("action", "#" + anchor).submit();
+        });
+
+        /**
+         * アプリケーションユーザフレンドのHeaderセレクトボックス処理
+         */
+        $("#header_read_application_user_friend").change(function () {
+
+            // 選択したヘッダー名
+            var header = this.value;
+
+            // 選択したヘッダー名が「If-Modified-Since」なら
+            // RFC1123フォーマットの日付をデフォルトセットしてあげる
+            if (header === 'If-Modified-Since') {
+                // select要素の親(parent)と同列のtd要素(next)が子に持つ(children)、input要素のvalueにセット
+                $(this).parent().next().children().val(new Date().toGMTString());
+            }
+        });
+    });
+</script>
+<style>
+
+    table, td, th {
+        border: 1px #ee0000 solid;
+    }
+
+    input.basic {
+        width: 500px;
+    }
+    input.endpoint_url {
+        width: 700px;
+    }
+    input.endpoint_url.long {
+        width: 900px;
+    }
+    input.endpoint_url.with_param {
+        width: 900px;
+    }
+    input.request_body {
+        width: 800px;
+    }
+    input.request_body.short {
+        width: 500px;
+    }
+    input.header_value {
+        width: 200px;
+    }
+    input.id_token {
+        width: 300px;
+    }
+    td {
+        white-space: nowrap;
+    }
+    #help > h3 {
+        cursor: pointer;
+    }
+    label {
+        cursor: pointer;
+    }
+    span.required {
+        font-weight: bold;
+        font-size: x-small;
+        color: red;
+    }
+    span.api_section {
+        font-size: large; 
+        font-weight: bold; 
+        color: green;
+    }
+
+    #toc {
+
+        width:500px;
+        border: 1px solid #000000; 
+    }
+    a {
+        text-decoration: none;
+    }
+</style>
+
+<h2>この画面の使い方</h2>
+
+<div id="help">
+
+    <h3>APIモードについて</h3>
+
+    <div id="help_api_mode">
+        <ul>
+            <li>Trusted
+                <ul>
+                    <li>アプリケーションユーザの正当性を保証するため、基本情報欄の「アプリケーション秘密鍵」を入力してください
+                    <li>REST-Query-Parameters にアクセストークン、IDトークンは必要ありません
+                </ul>
+            <li>Trusted Proxy
+                <ul>
+                    <li>アプリケーションユーザの正当性を保証するため、基本情報欄の「アプリケーション秘密鍵」を入力してください
+                    <li>プラットフォームとMISPの連携正当性チェックのために、アクセストークン、IDトークンを REST-Query-Parameters で送信してください
+                </ul>
+        </ul>
+    </div>
+
+    <h3>基本的な使い方</h3>
+
+    <div id="help_how_to_use">
+        <ol>
+            <li>「アプリケーションユーザ登録」でアプリケーションユーザを登録します
+            <li>結果が「レスポンス」に表示されるので、その情報をもとに「アプリケーションユーザ取得」でアプリケーションユーザを取得します
+            <li>あとはお察しください
+        </ol>
+
+    </div>
+
+</div>
+
+<div id="toc">
+    <h2>目次</h2>
+    <h3><a href="#toc_apitest">APIテスト</a></h3>
+    <h4><a href="#toc_apitest_subplatform">プラットフォーム連携</a></h4>
+    <h3><a href="#toc_idtoken">IDトークン生成デキレース</a></h3>
+</div>
+
+
+<h2 id="toc_apitest">APIテスト用ツール</h2>
+
+
+<a href="/test">リセット</a>
+<form action="" method="post">
+    <input type="submit" value="よろしくお願いいたします"/>
+    <table>
+        <thead>
+            <tr><th colspan="2">基本情報</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>アプリケーションID</td><td><input type="text" name="application_id" class="basic" value="<?php echo $this->applicationId; ?>"/></td>
+            </tr>
+            <tr>
+                <td>アプリケーション秘密鍵</td><td><input type="text" name="application_secret" class="basic" value="<?php echo $this->applicationSecret; ?>"/></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <input type="submit" value="よろしくお願いいたします"/>
+    <table style="border-style: solid">
+        <thead>
+            <tr>
+                <th>呼ぶ</th>
+                <th>機能</th>
+                <th>APIモード</th>
+                <th>エンドポイントURL<br/><hr/>REST-Request-Payload</th>
+        <th>備考</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="5"><a name="a"><span class="api_section">アプリケーションユーザ系</span></a></td>
+            </tr>
+            <tr>
+                <td rowspan="2"><input type="radio" id="radio_create_application_user" name="api" value="createApplicationUser" <?php echo $this->checkedCreateApplicationUser; ?>/></td>
+                <td rowspan="2"><label for="radio_create_application_user">登録(とうろく)</label></td>
+                <td rowspan="2"><input type="radio" name="api_mode_create_application_user" value="Trusted" <?php echo $this->checkedApiModeTrustedCreateApplicationUser; ?>/><label>Trusted</label></td>
+                <td><input type="text" class="endpoint_url" name="endpoint_url_create_application_user" value="<?php echo $this->endPointUrlCreateApplicationUser; ?>"/></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><input type="text" class="request_body short" name="request_body_create_application_user" value="<?php echo $this->escape($this->requestBodyCreateApplicationUser); ?>"/><span class="required">(必須)</span></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><input type="radio" id="radio_read_application_user" name="api" value="readApplicationUser" <?php echo $this->checkedReadApplicationUser; ?>/></td>
+                <td><label for="radio_read_application_user">取得(しゅとく)</label></td>
+                <td><input type="radio" name="api_mode_read_application_user" value="Trusted" <?php echo $this->checkedApiModeTrustedReadApplicationUser; ?>/><label>Trusted</label></td>
+                <td><input type="text" class="endpoint_url with_param"  name="endpoint_url_read_application_user" value="<?php echo $this->endPointUrlReadApplicationUser; ?>"/></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td rowspan="2"><input type="radio" id="radio_update_application_user" name="api" value="updateApplicationUser" <?php echo $this->checkedUpdateApplicationUser; ?>/></td>
+                <td rowspan="2"><label for="radio_update_application_user">更新(こうしん)</label></td>
+                <td rowspan="2"><input type="radio" name="api_mode_update_application_user" value="Trusted" <?php echo $this->checkedApiModeTrustedUpdateApplicationUser; ?>/><label>Trusted</label></td>
+                <td><input type="text" class="endpoint_url"  name="endpoint_url_update_application_user" value="<?php echo $this->endPointUrlUpdateApplicationUser; ?>"/></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><input type="text" class="request_body short" name="request_body_update_application_user" value="<?php echo $this->escape($this->requestBodyUpdateApplicationUser); ?>"/><span class="required">(必須)</span></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><input type="radio" id="radio_app_create_token" name="api" value="appCreateToken" <?php echo $this->checkedAppCreateToken; ?>/></td>
+                <td><label for="radio_app_create_token">App系トークン取得</label></td>
+                <td><input type="radio" name="api_mode_app_create_token" value="Trusted" <?php echo $this->checkedApiModeTrustedAppCreateToken; ?>/><label>Trusted</label></td>
+                <td><input type="text" class="endpoint_url"  name="endpoint_url_app_create_token" value="<?php echo $this->endPointUrlAppCreateToken; ?>"/><br/>
+                    grant_type=<input type="text" class="request_body" name="request_body_app_create_token_grant_type" value="<?php echo $this->escape($this->requestBodyAppCreateTokenGrantType); ?>"/><span class="required">(必須)</span><br/>
+                    username=<input type="text" class="request_body" name="request_body_app_create_token_username" value="<?php echo $this->escape($this->requestBodyAppCreateTokenUsername); ?>"/><span class="required">(必須)</span><br/>
+                    password=<input type="text" class="request_body" name="request_body_app_create_token_password" value="<?php echo $this->escape($this->requestBodyAppCreateTokenPassword); ?>"/><span class="required">(必須)</span><br/>
+                    nonce=<input type="text" class="request_body" name="request_body_app_create_token_nonce" value="<?php echo $this->escape($this->requestBodyAppCreateTokenNonce); ?>"/><br/>
+                    max_age=<input type="text" class="request_body" name="request_body_app_create_token_max_age" value="<?php echo $this->escape($this->requestBodyAppCreateTokenMaxAge); ?>"/><br/>
+                    リアルタイム掲示板のログイン画面URL=<input type="text" class="request_body" name="request_body_app_create_token_bbs" value="<?php echo $this->escape($this->requestBodyAppCreateTokenBbs); ?>"/>
+                <td>
+                    grant_typeは"password"固定<br/>
+                    リアルタイム掲示板ログインは<a href="<?php echo $this->appCreateTokenRealTimeBb; ?>" target="_blank">こちら</a>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5"><input type="submit" value="よろしくお願いいたします" data-anchor="a"/></td>
+            </tr>
+            <tr>
+                <td colspan="5">
+                    <div>
+                        <div>
+                            <span style="display:block;">OAuthヘッダ</span><textarea cols="100" rows="7"><?php echo $this->authHeader; ?></textarea>
+                        </div>
+                        <div style="float: left;">
+                            <span style="display:block;">生リクエスト</span><textarea cols="50" rows="18"><?php echo $this->lastRequest; ?></textarea>
+                        </div>
+                        <div style="float: left;">
+                            <span style="display:block;">生レスポンス</span><textarea cols="50" rows="18"><?php echo $this->response; ?></textarea>
+                        </div>
+                        <div>
+                            <span style="display:block;">UnicodeエンコードされたJSONのマルチバイト部分を戻すょ</span><textarea cols="80" rows="18"><?php echo $this->responseBodyAsJson; ?></textarea>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5"><a name="b"><span class="api_section">アプリケーションユーザグループ系</span></a></td>
+            </tr>
+            <tr>
+                <td rowspan="2"><input type="radio" id="radio_create_application_user_group" name="api" value="createApplicationUserGroup" <?php echo $this->checkedCreateApplicationUserGroup; ?>/></td>
+                <td rowspan="2"><label for="radio_create_application_user_group">登録(とうろく)</label></td>
+                <td rowspan="2"><input type="radio" name="api_mode_create_application_user_group" value="Trusted" <?php echo $this->checkedApiModeTrustedCreateApplicationUserGroup; ?>/><label>Trusted</label></td>
+                <td><input type="text" class="endpoint_url" name="endpoint_url_create_application_user_group" value="<?php echo $this->endPointUrlCreateApplicationUserGroup; ?>"/></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><input type="text" class="request_body" name="request_body_create_application_user_group" value="<?php echo $this->escape($this->requestBodyCreateApplicationUserGroup); ?>"/><span class="required">(必須)</span></td>
+                <td>REST-Request-Payloadのテンプレ<pre>{"entry":[{"title":"グループタイトル","description":"グループ説明","type":"グループ種別"}]}</pre></td>
+            </tr>
+            <tr>
+                <td><input type="radio" id="radio_read_application_user_group" name="api" value="readApplicationUserGroup" <?php echo $this->checkedReadApplicationUserGroup; ?>/></td>
+                <td><label for="radio_read_application_user_group">取得(しゅとく)</label></td>
+                <td><input type="radio" name="api_mode_read_application_user_group" value="Trusted" <?php echo $this->checkedApiModeTrustedReadApplicationUserGroup; ?>/><label>Trusted</label></td>
+                <td>
+                    <input type="text" class="endpoint_url with_param"  name="endpoint_url_read_application_user_group" value="<?php echo $this->endPointUrlReadApplicationUserGroup; ?>"/><br/>
+                    <span class="required">"グループID"のところを数値にしないとテスト画面がエラーになるので注意</span>
+                </td>
+                <td>
+                    <dl>
+                        <dt>対応パラメータ
+                        <dd>
+                            <ul>
+                                <li>count
+                                <li>startIndex
+                                <li>filterBy=title,type
+                                <li>filterOp=[equals(default)|contains][,equals(default)]
+                                <li>filterValue=任意,privateGroup|publicGroup
+                            </ul>
+                    </dl>
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="2"><input type="radio" id="radio_update_application_user_group" name="api" value="updateApplicationUserGroup" <?php echo $this->checkedUpdateApplicationUserGroup; ?>/></td>
+                <td rowspan="2"><label for="radio_update_application_user_group">更新(こうしん)</label></td>
+                <td rowspan="2"><input type="radio" name="api_mode_update_application_user_group" value="Trusted" <?php echo $this->checkedApiModeTrustedUpdateApplicationUserGroup; ?>/><label>Trusted</label></td>
+                <td>
+                    <input type="text" class="endpoint_url"  name="endpoint_url_update_application_user_group" value="<?php echo $this->endPointUrlUpdateApplicationUserGroup; ?>"/><br/>
+                    <span class="required">"グループID"のところを数値にしないとテスト画面がエラーになるので注意</span>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><input type="text" class="request_body" name="request_body_update_application_user_group" value="<?php echo $this->escape($this->requestBodyUpdateApplicationUserGroup); ?>"/><span class="required">(必須)</span></td>
+                <td>REST-Request-Payloadのテンプレ<pre>{"entry":[{"id": "グループID", "title":"グループタイトル","description":"グループ説明","type":"グループ種別"}]}</pre></td>
+            </tr>
+            <tr>
+                <td><input type="radio" id="radio_delete_application_user_group" name="api" value="deleteApplicationUserGroup" <?php echo $this->checkedDeleteApplicationUserGroup; ?>/></td>
+                <td><label for="radio_delete_application_user_group">削除(さくじょ)</label></td>
+                <td><input type="radio" name="api_mode_delete_application_user_group" value="Trusted" <?php echo $this->checkedApiModeTrustedDeleteApplicationUserGroup; ?>/><label>Trusted</label></td>
+                <td>
+                    <input type="text" class="endpoint_url" name="endpoint_url_delete_application_user_group" value="<?php echo $this->endPointUrlDeleteApplicationUserGroup; ?>"/><br/>
+                    <span class="required">"グループID"のところを数値にしないとテスト画面がエラーになるので注意</span>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="5"><input type="submit" value="よろしくお願いいたします" data-anchor="b"/></td>
+            </tr>
+            <tr>
+                <td colspan="5">
+                    <div>
+                        <div>
+                            <span style="display:block;">OAuthヘッダ</span><textarea cols="100" rows="7"><?php echo $this->authHeader; ?></textarea>
+                        </div>
+                        <div style="float: left;">
+                            <span style="display:block;">生リクエスト</span><textarea cols="50" rows="18"><?php echo $this->lastRequest; ?></textarea>
+                        </div>
+                        <div style="float: left;">
+                            <span style="display:block;">生レスポンス</span><textarea cols="50" rows="18"><?php echo $this->response; ?></textarea>
+                        </div>
+                        <div>
+                            <span style="display:block;">UnicodeエンコードされたJSONのマルチバイト部分を戻すょ</span><textarea cols="80" rows="18"><?php echo $this->responseBodyAsJson; ?></textarea>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5"><a name="c"><span class="api_section">アプリケーションユーザグループメンバ系</span></a></td>
+            </tr>
+            <tr>
+                <td rowspan="2"><input type="radio" id="radio_create_application_user_group_member" name="api" value="createApplicationUserGroupMember" <?php echo $this->checkedCreateApplicationUserGroupMember; ?>/></td>
+                <td rowspan="2"><label for="radio_create_application_user_group_member">登録(とうろく)</label></td>
+                <td rowspan="2"><input type="radio" name="api_mode_create_application_user_group_member" value="Trusted" <?php echo $this->checkedApiModeTrustedCreateApplicationUserGroupMember; ?>/><label>Trusted</label></td>
+                <td>
+                    <input type="text" class="endpoint_url" name="endpoint_url_create_application_user_group_member" value="<?php echo $this->endPointUrlCreateApplicationUserGroupMember; ?>"/><br/>
+                    <span class="required">"グループID"のところを数値にしないとテスト画面がエラーになるので注意</span>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><input type="text" class="request_body" name="request_body_create_application_user_group_member" value="<?php echo $this->escape($this->requestBodyCreateApplicationUserGroupMember); ?>"/><span class="required">(必須)</span></td>
+                <td>REST-Request-Payloadのテンプレ<pre>{"entry":[{"id":"アプリケーションユーザID"}]}</pre></td>
+            </tr>
+            <tr>
+                <td><input type="radio" id="radio_read_application_user_group_member" name="api" value="readApplicationUserGroupMember" <?php echo $this->checkedReadApplicationUserGroupMember; ?>/></td>
+                <td><label for="radio_read_application_user_group_member">取得(しゅとく)</label></td>
+                <td><input type="radio" name="api_mode_read_application_user_group_member" value="Trusted" <?php echo $this->checkedApiModeTrustedReadApplicationUserGroupMember; ?>/><label>Trusted</label></td>
+                <td>
+                    <input type="text" class="endpoint_url with_param"  name="endpoint_url_read_application_user_group_member" value="<?php echo $this->endPointUrlReadApplicationUserGroupMember; ?>"/><br/>
+                    <span class="required">"グループID"のところを数値にしないとテスト画面がエラーになるので注意</span>
+                </td>
+                <td>
+                    <dl>
+                        <dt>対応パラメータ
+                        <dd>
+                            <ul>
+                                <li>count
+                                <li>startIndex
+                                <li>filterBy=id,connected
+                                <li>filterOp=[equals(default)][,equals(default)]
+                                <li>filterValue=任意のアプリケーションユーザID,true|false
+                            </ul>
+                    </dl>
+                </td>
+            </tr>
+            <tr>
+                <td><input type="radio" id="radio_delete_application_user_group_member" name="api" value="deleteApplicationUserGroupMember" <?php echo $this->checkedDeleteApplicationUserGroupMember; ?>/></td>
+                <td><label for="radio_delete_application_user_group_member">削除(さくじょ)</label></td>
+                <td><input type="radio" name="api_mode_delete_application_user_group_member" value="Trusted" <?php echo $this->checkedApiModeTrustedDeleteApplicationUserGroupMember; ?>/><label>Trusted</label></td>
+                <td>
+                    <input type="text" class="endpoint_url long" name="endpoint_url_delete_application_user_group_member" value="<?php echo $this->endPointUrlDeleteApplicationUserGroupMember; ?>"/><br/>
+                    <span class="required">"グループID"とか数値にしないとテスト画面がエラーになるので注意</span>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="5"><input type="submit" value="よろしくお願いいたします" data-anchor="c"/></td>
+            </tr>
+            <tr>
+                <td colspan="5">
+                    <div>
+                        <div>
+                            <span style="display:block;">OAuthヘッダ</span><textarea cols="100" rows="7"><?php echo $this->authHeader; ?></textarea>
+                        </div>
+                        <div style="float: left;">
+                            <span style="display:block;">生リクエスト</span><textarea cols="50" rows="18"><?php echo $this->lastRequest; ?></textarea>
+                        </div>
+                        <div style="float: left;">
+                            <span style="display:block;">生レスポンス</span><textarea cols="50" rows="18"><?php echo $this->response; ?></textarea>
+                        </div>
+                        <div>
+                            <span style="display:block;">UnicodeエンコードされたJSONのマルチバイト部分を戻すょ</span><textarea cols="80" rows="18"><?php echo $this->responseBodyAsJson; ?></textarea>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5"><a name="d"><span class="api_section">アプリケーションユーザグループリクエスト系</span></a></td>
+            </tr>
+            <tr>
+                <td><input type="radio" id="radio_read_application_user_group_request" name="api" value="readApplicationUserGroupRequest" <?php echo $this->checkedReadApplicationUserGroupRequest; ?>/></td>
+                <td><label for="radio_read_application_user_group_request">取得(しゅとく)</label></td>
+                <td><input type="radio" name="api_mode_read_application_user_group_request" value="Trusted" <?php echo $this->checkedApiModeTrustedReadApplicationUserGroupRequest; ?>/><label>Trusted</label></td>
+                <td><input type="text" class="endpoint_url with_param"  name="endpoint_url_read_application_user_group_request" value="<?php echo $this->endPointUrlReadApplicationUserGroupRequest; ?>"/></td>
+                <td>
+                    <dl>
+                        <dt>対応パラメータ
+                        <dd>
+                            <ul>
+                                <li>count
+                                <li>startIndex
+                                <li>filterBy=type
+                                <li>filterOp=equals
+                                <li>filterValue=privateGroup|publicGroup
+                            </ul>
+                    </dl>
+                </td>
+            </tr>
+            <tr>
+                <td><input type="radio" id="radio_delete_application_user_group_request" name="api" value="deleteApplicationUserGroupRequest" <?php echo $this->checkedDeleteApplicationUserGroupRequest; ?>/></td>
+                <td><label for="radio_delete_application_user_group_request">削除(さくじょ)</label></td>
+                <td><input type="radio" name="api_mode_delete_application_user_group_request" value="Trusted" <?php echo $this->checkedApiModeTrustedDeleteApplicationUserGroupRequest; ?>/><label>Trusted</label></td>
+                <td><input type="text" class="endpoint_url long" name="endpoint_url_delete_application_user_group_request" value="<?php echo $this->endPointUrlDeleteApplicationUserGroupRequest; ?>"/></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="5"><input type="submit" value="よろしくお願いいたします" data-anchor="d"/></td>
+            </tr>
+            <tr>
+                <td colspan="5">
+                    <div>
+                        <div>
+                            <span style="display:block;">OAuthヘッダ</span><textarea cols="100" rows="7"><?php echo $this->authHeader; ?></textarea>
+                        </div>
+                        <div style="float: left;">
+                            <span style="display:block;">生リクエスト</span><textarea cols="50" rows="18"><?php echo $this->lastRequest; ?></textarea>
+                        </div>
+                        <div style="float: left;">
+                            <span style="display:block;">生レスポンス</span><textarea cols="50" rows="18"><?php echo $this->response; ?></textarea>
+                        </div>
+                        <div>
+                            <span style="display:block;">UnicodeエンコードされたJSONのマルチバイト部分を戻すょ</span><textarea cols="80" rows="18"><?php echo $this->responseBodyAsJson; ?></textarea>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5"><a name="e"><span class="api_section">アプリケーションユーザフレンド系</span></a></td>
+            </tr>
+            <tr>
+                <td rowspan="2"><input type="radio" id="radio_create_application_user_friend" name="api" value="createApplicationUserFriend" <?php echo $this->checkedCreateApplicationUserFriend; ?>/></td>
+                <td rowspan="2"><label for="radio_create_application_user_friend">登録(とうろく)</label></td>
+                <td rowspan="2"><input type="radio" name="api_mode_create_application_user_friend" value="Trusted" <?php echo $this->checkedApiModeTrustedCreateApplicationUserFriend; ?>/><label>Trusted</label></td>
+                <td><input type="text" class="endpoint_url" name="endpoint_url_create_application_user_friend" value="<?php echo $this->endPointUrlCreateApplicationUserFriend; ?>"/></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><input type="text" class="request_body short" name="request_body_create_application_user_friend" value="<?php echo $this->escape($this->requestBodyCreateApplicationUserFriend); ?>"/><span class="required">(必須)</span></td>
+                <td>REST-Request-Payloadのテンプレ<pre>{"entry":[{"id":"登録(申請)対象のアプリケーションユーザID","status":"1(申請中)"}]}</pre></td>
+            </tr>
+            <tr>
+                <td><input type="radio" id="radio_read_application_user_friend" name="api" value="readApplicationUserFriend" <?php echo $this->checkedReadApplicationUserFriend; ?>/></td>
+                <td><label for="radio_read_application_user_friend">取得(しゅとく)</label></td>
+                <td><input type="radio" name="api_mode_read_application_user_friend" value="Trusted" <?php echo $this->checkedApiModeTrustedReadApplicationUserFriend; ?>/><label>Trusted</label></td>
+                <td>
+                    <table>
+                        <tr>
+                            <th>Header名</th><th>Header値</th>
+                        </tr>
+                        <tr>
+                            <td>
+                                <select id="header_read_application_user_friend" name="header_read_application_user_friend">
+                                    <option value="">なし</option>
+                                    <option value="If-Modified-Since">If-Modified-Since</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" name="header_value_read_application_user_friend" class="header_value" value=""/>
+                            </td>
+                        </tr>
+                    </table>
+                    <input type="text" class="endpoint_url with_param"  name="endpoint_url_read_application_user_friend" value="<?php echo $this->endPointUrlReadApplicationUserFriend; ?>"/>
+                </td>
+                <td>
+                    <dl>
+                        <dt>対応パラメータ
+                        <dd>
+                            <ul>
+                                <li>count
+                                <li>startIndex
+                                <li>filterBy=id,connected
+                                <li>filterOp=[equals(default)][,equals(default)]
+                                <li>filterValue=任意のアプリケーションユーザID,true|false
+                            </ul>
+                    </dl>
+                </td>
+            </tr>
+            <tr>
+                <td><input type="radio" id="radio_delete_application_user_friend" name="api" value="deleteApplicationUserFriend" <?php echo $this->checkedDeleteApplicationUserFriend; ?>/></td>
+                <td><label for="radio_delete_application_user_friend">削除(さくじょ)</label></td>
+                <td><input type="radio" name="api_mode_delete_application_user_friend" value="Trusted" <?php echo $this->checkedApiModeTrustedDeleteApplicationUserFriend; ?>/><label>Trusted</label></td>
+                <td><input type="text" class="endpoint_url long" name="endpoint_url_delete_application_user_friend" value="<?php echo $this->endPointUrlDeleteApplicationUserFriend; ?>"/></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="5"><input type="submit" value="よろしくお願いいたします" data-anchor="e"/></td>
+            </tr>
+            <tr>
+                <td colspan="5">
+                    <div>
+                        <div>
+                            <span style="display:block;">OAuthヘッダ</span><textarea cols="100" rows="7"><?php echo $this->authHeader; ?></textarea>
+                        </div>
+                        <div style="float: left;">
+                            <span style="display:block;">生リクエスト</span><textarea cols="50" rows="18"><?php echo $this->lastRequest; ?></textarea>
+                        </div>
+                        <div style="float: left;">
+                            <span style="display:block;">生レスポンス</span><textarea cols="50" rows="18"><?php echo $this->response; ?></textarea>
+                        </div>
+                        <div>
+                            <span style="display:block;">UnicodeエンコードされたJSONのマルチバイト部分を戻すょ</span><textarea cols="80" rows="18"><?php echo $this->responseBodyAsJson; ?></textarea>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5"><a name="f"><span class="api_section">アプリケーションユーザフレンドリクエスト系</span></a><</td>
+            </tr>
+            <tr>
+                <td><input type="radio" id="radio_read_application_user_friend_request" name="api" value="readApplicationUserFriendRequest" <?php echo $this->checkedReadApplicationUserFriendRequest; ?>/></td>
+                <td><label for="radio_read_application_user_friend_request">取得(しゅとく)</label></td>
+                <td><input type="radio" name="api_mode_read_application_user_friend_request" value="Trusted" <?php echo $this->checkedApiModeTrustedReadApplicationUserFriendRequest; ?>/><label>Trusted</label></td>
+                <td><input type="text" class="endpoint_url with_param"  name="endpoint_url_read_application_user_friend_request" value="<?php echo $this->endPointUrlReadApplicationUserFriendRequest; ?>"/></td>
+                <td>
+                    <dl>
+                        <dt>対応パラメータ
+                        <dd>
+                            <ul>
+                                <li>count
+                                <li>startIndex
+                            </ul>
+                    </dl>
+                </td>
+            </tr>
+            <tr>
+                <td><input type="radio" id="radio_delete_application_user_friend_request" name="api" value="deleteApplicationUserFriendRequest" <?php echo $this->checkedDeleteApplicationUserFriendRequest; ?>/></td>
+                <td><label for="radio_delete_application_user_friend_request">削除(さくじょ)</label></td>
+                <td><input type="radio" name="api_mode_delete_application_user_friend_request" value="Trusted" <?php echo $this->checkedApiModeTrustedDeleteApplicationUserFriendRequest; ?>/><label>Trusted</label></td>
+                <td><input type="text" class="endpoint_url long" name="endpoint_url_delete_application_user_friend_request" value="<?php echo $this->endPointUrlDeleteApplicationUserFriendRequest; ?>"/></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="5"><input type="submit" value="よろしくお願いいたします" data-anchor="f"/></td>
+            </tr>
+            <tr>
+                <td colspan="5">
+                    <div>
+                        <div>
+                            <span style="display:block;">OAuthヘッダ</span><textarea cols="100" rows="7"><?php echo $this->authHeader; ?></textarea>
+                        </div>
+                        <div style="float: left;">
+                            <span style="display:block;">生リクエスト</span><textarea cols="50" rows="18"><?php echo $this->lastRequest; ?></textarea>
+                        </div>
+                        <div style="float: left;">
+                            <span style="display:block;">生レスポンス</span><textarea cols="50" rows="18"><?php echo $this->response; ?></textarea>
+                        </div>
+                        <div>
+                            <span style="display:block;">UnicodeエンコードされたJSONのマルチバイト部分を戻すょ</span><textarea cols="80" rows="18"><?php echo $this->responseBodyAsJson; ?></textarea>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5"><a name="g"><span class="api_section">アプリケーションユーザブラックリスト系</span></a></td>
+            </tr>
+            <tr>
+                <td rowspan="2"><input type="radio" id="radio_create_application_user_blacklist" name="api" value="createApplicationUserBlacklist" <?php echo $this->checkedCreateApplicationUserBlacklist; ?>/></td>
+                <td rowspan="2"><label for="radio_create_application_user_blacklist">登録(とうろく)</label></td>
+                <td rowspan="2"><input type="radio" name="api_mode_create_application_user_blacklist" value="Trusted" <?php echo $this->checkedApiModeTrustedCreateApplicationUserBlacklist; ?>/><label>Trusted</label></td>
+                <td><input type="text" class="endpoint_url" name="endpoint_url_create_application_user_blacklist" value="<?php echo $this->endPointUrlCreateApplicationUserBlacklist; ?>"/></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><input type="text" class="request_body" name="request_body_create_application_user_blacklist" value="<?php echo $this->escape($this->requestBodyCreateApplicationUserBlacklist); ?>"/><span class="required">(必須)</span></td>
+                <td>REST-Request-Payloadのテンプレ<pre>{"entry":[{"id":"ブラックリストにいれる相手のアプリケーションユーザID"}]}</pre></td>
+            </tr>
+            <tr>
+                <td><input type="radio" id="radio_read_application_user_blacklist" name="api" value="readApplicationUserBlacklist" <?php echo $this->checkedReadApplicationUserBlacklist; ?>/></td>
+                <td><label for="radio_read_application_user_blacklist">取得(しゅとく)</label></td>
+                <td><input type="radio" name="api_mode_read_application_user_blacklist" value="Trusted" <?php echo $this->checkedApiModeTrustedReadApplicationUserBlacklist; ?>/><label>Trusted</label></td>
+                <td><input type="text" class="endpoint_url with_param"  name="endpoint_url_read_application_user_blacklist" value="<?php echo $this->endPointUrlReadApplicationUserBlacklist; ?>"/></td>
+                <td>
+                    <dl>
+                        <dt>対応パラメータ
+                        <dd>
+                            <ul>
+                                <li>count
+                                <li>startIndex
+                                <li>filterBy=id
+                                <li>filterOp=[equals(default)]
+                                <li>filterValue=任意のアプリケーションユーザID
+                            </ul>
+                    </dl>
+                </td>
+            </tr>
+            <tr>
+                <td><input type="radio" id="radio_delete_application_user_blacklist" name="api" value="deleteApplicationUserBlacklist" <?php echo $this->checkedDeleteApplicationUserBlacklist; ?>/></td>
+                <td><label for="radio_delete_application_user_blacklist">削除(さくじょ)</label></td>
+                <td><input type="radio" name="api_mode_delete_application_user_blacklist" value="Trusted" <?php echo $this->checkedApiModeTrustedDeleteApplicationUserBlacklist; ?>/><label>Trusted</label></td>
+                <td>
+                    <input type="text" class="endpoint_url long" name="endpoint_url_delete_application_user_blacklist" value="<?php echo $this->endPointUrlDeleteApplicationUserBlacklist; ?>"/><br/>
+                    <span class="required">"アプリケーションユーザID"のところを数値にしないとテスト画面がエラーになるので注意</span>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="5"><input type="submit" value="よろしくお願いいたします" data-anchor="g"/></td>
+            </tr>
+            <tr>
+                <td colspan="5">
+                    <div>
+                        <div>
+                            <span style="display:block;">OAuthヘッダ</span><textarea cols="100" rows="7"><?php echo $this->authHeader; ?></textarea>
+                        </div>
+                        <div style="float: left;">
+                            <span style="display:block;">生リクエスト</span><textarea cols="50" rows="18"><?php echo $this->lastRequest; ?></textarea>
+                        </div>
+                        <div style="float: left;">
+                            <span style="display:block;">生レスポンス</span><textarea cols="50" rows="18"><?php echo $this->response; ?></textarea>
+                        </div>
+                        <div>
+                            <span style="display:block;">UnicodeエンコードされたJSONのマルチバイト部分を戻すょ</span><textarea cols="80" rows="18"><?php echo $this->responseBodyAsJson; ?></textarea>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="5"><a name="h"><span class="api_section">App系トークン＆AppData</span></a></td>
+            </tr>
+            <tr>
+                <td rowspan="2"><input type="radio" id="radio_put_appdata" name="api" value="putAppData" <?php echo $this->checkedPutAppData; ?>/></td>
+                <td rowspan="2"><label for="radio_put_appdata">Put AppData</label></td>
+                <td rowspan="2"><input type="radio" name="api_mode_put_appdata" value="Trusted" <?php echo $this->checkedApiModeTrustedPutAppdata; ?>/><label>Trusted</label></td>
+                <td><input type="text" class="endpoint_url"  name="endpoint_url_put_appdata" value="<?php echo $this->endPointUrlPutAppData; ?>"/></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><input type="text" class="request_body" name="request_body_put_appdata" value="<?php echo $this->escape($this->requestBodyPutAppData); ?>"/><span class="required">(必須)</span></td>
+                <td>REST-Request-Payloadのテンプレ<pre>{ "key1":"value1", "key2":"value2" }</pre></td>
+            </tr>
+            <tr>
+                <td><input type="radio" id="radio_get_appdata" name="api" value="getAppData" <?php echo $this->checkedGetAppData; ?>/></td>
+                <td><label for="radio_get_appdata">Get AppData</label></td>
+                <td><input type="radio" name="api_mode_get_appdata" value="Trusted" <?php echo $this->checkedApiModeTrustedGetAppdata; ?>/><label>Trusted</label></td>
+                <td><input type="text" class="endpoint_url with_param"  name="endpoint_url_get_appdata" value="<?php echo $this->endPointUrlGetAppData; ?>"/></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><input type="radio" id="radio_delete_appdata" name="api" value="deleteAppData" <?php echo $this->checkedDeleteAppData; ?>/></td>
+                <td><label for="radio_delete_appdata">Delete AppData</label></td>
+                <td><input type="radio" name="api_mode_delete_appdata" value="Trusted" <?php echo $this->checkedApiModeTrustedDeleteAppdata; ?>/><label>Trusted</label></td>
+                <td><input type="text" class="endpoint_url with_param"  name="endpoint_url_delete_appdata" value="<?php echo $this->endPointUrlDeleteAppData; ?>"/></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="5"><input type="submit" value="よろしくお願いいたします" data-anchor="h"/></td>
+            </tr>
+            <tr>
+                <td colspan="5">
+                    <div>
+                        <div>
+                            <span style="display:block;">OAuthヘッダ</span><textarea cols="100" rows="7"><?php echo $this->authHeader; ?></textarea>
+                        </div>
+                        <div style="float: left;">
+                            <span style="display:block;">生リクエスト</span><textarea cols="50" rows="18"><?php echo $this->lastRequest; ?></textarea>
+                        </div>
+                        <div style="float: left;">
+                            <span style="display:block;">生レスポンス</span><textarea cols="50" rows="18"><?php echo $this->response; ?></textarea>
+                        </div>
+                        <div>
+                            <span style="display:block;">UnicodeエンコードされたJSONのマルチバイト部分を戻すょ</span><textarea cols="80" rows="18"><?php echo $this->responseBodyAsJson; ?></textarea>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="2"><input type="radio" id="radio_ngword" name="api" value="ngword" <?php echo $this->checkedNgword; ?>/></td>
+                <td rowspan="2"><label for="radio_ngword"><a name="i">NGワード</a></label></td>
+                <td rowspan="2"><input type="radio" name="api_mode_ngword" value="Trusted" <?php echo $this->checkedApiModeTrustedNgword; ?>/><label>Trusted</label></td>
+                <td><input type="text" class="endpoint_url"  name="endpoint_url_ngword" value="<?php echo $this->endPointUrlNgword; ?>"/></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><input type="text" class="request_body" name="request_body_ngword" value="<?php echo $this->escape($this->requestBodyNgword); ?>"/><span class="required">(必須)</span></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><input type="radio" id="radio_read_user" name="api" value="readUser" <?php echo $this->checkedReadUser; ?>/></td>
+                <td><label for="radio_read_user">ユーザ取得</label></td>
+                <td>
+                    <input type="radio" name="api_mode_read_user" value="Proxy" id="radio_read_user_proxy" <?php echo $this->checkedApiModeProxyReadUser; ?>/><label for="radio_read_user_proxy">Proxy</label><br/>
+                    <input type="radio" name="api_mode_read_user" value="Trusted Proxy" id="radio_read_user_trusted_proxy" <?php echo $this->checkedApiModeTrustedProxyReadUser; ?>/><label for="radio_read_user_trusted_proxy">Trusted Proxy</label></td>
+                <td>
+                    <span>※アクセストークン、IDトークンはテキストボックスに入力してください。<br/>APIリクエスト実行時に自動でエンドポイントURLに付加します。</span><br/>
+                    <input type="text" class="endpoint_url"  name="endpoint_url_read_user" value="<?php echo $this->endPointUrlReadUser; ?>"/><br/>
+                    access_token=<input type="text" class="request_body" name="request_body_read_user_access_token" value="<?php echo $this->escape($this->requestBodyReadUserAccessToken); ?>"/><span class="required">(必須)</span><br/>
+                    id_token=<input type="text" class="request_body" name="request_body_read_user_id_token" value="<?php echo $this->escape($this->requestBodyReadUserIdToken); ?>"/><span class="required">(必須)</span>
+                <td>アクセストークン、IDトークンはアプリケーションユーザ認証APIで入手できるアクセストークン、IDトークンではありません。<br/>
+                    プラットフォーム連携後のMISPが発行したものを入力してください。<br/>
+                    または、以下のURLにアクセスし、プラットフォーム連携を行うと、アクセストークン、IDトークンが画面に表示されます。<br/>
+                    <a href="<?php echo $this->basePath; ?>/marvelous/authorization/login?response_type=id_token+token&client_id=00000&redirect_uri=<?php echo $this->redirectUriBase; ?>%2Ftest%2Fmisp%2Fmisp-callback&state=ddd&nonce=213&scope=openid" target="_blank">こちら</a><br/>
+                    <a href="<?php echo $this->basePath; ?>/marvelous/authorization/login?response_type=id_token+token&client_id=00000&redirect_uri=<?php echo $this->redirectUriBase; ?>%2Ftest%2Fmisp%2Fmisp-callback-federation-list&state=ddd&nonce=213&scope=openid" target="_blank">こちら(MISP連携一覧画面までいけるやつ)</a><br/>
+                    (別アプリで試したい場合は、上記URLパラメータ中の<pre>client_id=00000</pre>の部分を適宜変更してください)
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="2"><input type="radio" id="radio_update_user" name="api" value="updateUser" <?php echo $this->checkedUpdateUser; ?>/></td>
+                <td rowspan="2"><label for="radio_update_user">ユーザ更新</label></td>
+                <td rowspan="2">
+                    <input type="radio" name="api_mode_update_user" value="Proxy" id="radio_update_user_proxy" <?php echo $this->checkedApiModeProxyUpdateUser; ?>/><label for="radio_update_user_proxy">Proxy</label><br/>
+                    <input type="radio" name="api_mode_update_user" value="Trusted Proxy" id="radio_update_user_trusted_proxy" <?php echo $this->checkedApiModeTrustedProxyUpdateUser; ?>/><label for="radio_update_user_trusted_proxy">Trusted Proxy</label></td>
+                <td>
+                    <span>※アクセストークン、IDトークンはテキストボックスに入力してください。<br/>APIリクエスト実行時に自動でエンドポイントURLに付加します。</span><br/>
+                    <input type="text" class="endpoint_url"  name="endpoint_url_update_user" value="<?php echo $this->endPointUrlUpdateUser; ?>"/><br/>
+                    access_token=<input type="text" class="request_body" name="request_body_update_user_access_token" value="<?php echo $this->escape($this->requestBodyUpdateUserAccessToken); ?>"/><span class="required">(必須)</span><br/>
+                    id_token=<input type="text" class="request_body" name="request_body_update_user_id_token" value="<?php echo $this->escape($this->requestBodyUpdateUserIdToken); ?>"/><span class="required">(必須)</span></td>
+                <td>アクセストークン、IDトークンはアプリケーションユーザ認証APIで入手できるアクセストークン、IDトークンではありません。<br/>プラットフォーム連携後のMISPが発行したものを入力してください。<br/>または、ユーザ更新APIテスト時に使用したものを入力してください。</td>
+            </tr> 
+            <tr>
+                <td><input type="text" class="request_body" name="request_body_update_user" value="<?php echo $this->escape($this->requestBodyUpdateUser); ?>"/></td>
+                <td>REST-Request-Payloadのテンプレ<br/><br/>
+                    普通に更新
+                    <pre>{"entry":[{"apps":[{"value":{"appId":"00000","userId":"misp1ee8e95c8ad1deae47b729944dd6fa8b","username":"evian"}}]}]}</pre>
+                    主にTwitter連携確認
+                    <pre>{"entry":[{"accounts":[{"value":{"authorizationCode":"5e40e43dd338af28c366d97dbb53c760e31c5d69c2d1da6910eda97b0ab5940a"}}]}]}</pre>
+                    AppData更新
+                    <pre>{"entry":[{"apps":[{"value":{"appId":"00000","userId":"misp1ee8e95c8ad1deae47b729944dd6fa8b","username":"evian2014","appData":{"madao":"hasegawa","key":"himitsu"}}}]}]}</pre>
+                </td>
+            </tr>
+            <tr>
+                <td><input type="radio" id="radio_create_token" name="api" value="createToken" <?php echo $this->checkedCreateToken; ?>/></td>
+                <td><label for="radio_create_token">トークン取得</label></td>
+                <td><input type="radio" name="api_mode_create_token" value="Trusted" <?php echo $this->checkedApiModeTrustedCreateToken; ?>/><label>Trusted</label></td>
+                <td><input type="text" class="endpoint_url"  name="endpoint_url_create_token" value="<?php echo $this->endPointUrlCreateToken; ?>"/><br/>
+                    grant_type=<br/>
+                    <input type="radio" name="endpoint_url_create_token_grant_type" value="authorization_code" id="radio_create_token_authorization_code" <?php echo $this->checkedCreateTokenAuthorizationCode; ?>/><label for="radio_create_token_authorization_code">authorization_code</label><br/>
+                    <input type="radio" name="endpoint_url_create_token_grant_type" value="refresh_token" id="radio_create_token_refresh_token" <?php echo $this->checkedCreateTokenRefreshToken; ?>/><label for="radio_create_token_refresh_token">refresh_token</label><br/>
+                    code=<input type="text" class="request_body" name="request_body_create_token_code" value="<?php echo $this->escape($this->requestBodyCreateTokenCode); ?>"/><br/>
+                    redirect_uri=<input type="text" class="request_body" name="request_body_create_token_redirect_uri" value="<?php echo $this->escape($this->requestBodyCreateTokenRedirectUri); ?>"/><br/>
+                    refresh_token=<input type="text" class="request_body" name="request_body_create_token_refresh_token" value="<?php echo $this->escape($this->requestBodyCreateTokenRefreshToken); ?>"/>
+                <td><a href="<?php echo $this->basePath; ?>/marvelous/authorization/login?response_type=code&client_id=00000&redirect_uri=<?php echo $this->redirectUriBase; ?>%2Ftest%2Fmisp%2Fmisp-callback&state=ddd&nonce=213&scope=openid" target="_blank">Basicのcode取得はこちらから♡</a><br/>
+                    grant_type=
+                    <ol>
+                        <li>authorization_codeの場合
+                            <ul>
+                                <li>codeとredirect_uriが必須
+                            </ul>
+                        </li>
+                        <li>refresh_tokenの場合
+                            <ul>
+                                <li>refresh_tokenが必須
+                            </ul>
+                        </li>
+                    </ol>
+                    <br/>ミンナニハナイショダヨ！
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <input type="submit" value="よろしくお願いいたします" data-anchor="i"/>
+</form>
+
+<div>
+    <div>
+        <span style="display:block;">OAuthヘッダ</span><textarea cols="100" rows="7"><?php echo $this->authHeader; ?></textarea>
+    </div>
+    <div style="float: left;">
+        <span style="display:block;">生リクエスト</span><textarea cols="70" rows="18"><?php echo $this->lastRequest; ?></textarea>
+    </div>
+    <div style="float: left;">
+        <span style="display:block;">生レスポンス</span><textarea cols="70" rows="18"><?php echo $this->response; ?></textarea>
+    </div>
+    <div>
+        <span style="display:block;">UnicodeエンコードされたJSONのマルチバイト部分を戻すょ</span><textarea cols="30" rows="18"><?php echo $this->responseBodyAsJson; ?></textarea>
+    </div>
+</div>
+
+<h3 id="toc_apitest_subplatform" style="clear:left;">プラットフォーム連携</h3>
+
+<table>
+    <thead>
+        <tr>
+            <th>プラットフォーム名</th>
+            <th>連携画面(別ウィンドウで開きます)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php //foreach ($this->subPlatform as $m): ?>
+        <!--
+            <tr>
+                <td><?php //echo $m->getPlatformName();                                                                                                                 ?></td>
+                <td><a href="<?php //echo $this->basePath;                                                                                                                 ?>/marvelous/federation?response_type=code&client_id=00000&redirect_uri=<?php //echo $this->redirectUriBase;                                                                                                                 ?>%2Ftest%2Fmisp%2Fmisp-callback&state=ddd&nonce=aaa&scope=openid&platform_id=<?php //echo $m->getPlatformId();                                                                                                                 ?>" target="_blank">こちら</a></td>
+            </tr>
+        -->
+        <?php // endforeach; ?>
+    </tbody>
+</table>
+
+<h2 id="toc_idtoken">IDトークン生成デキレース</h2>
+
+<form action="">
+    <div>
+        <table>
+            <tbody>
+                <tr>
+                    <td>アプリケーション秘密鍵</td><td><input type="text" name="id_token_application_secret" class="id_token" value="<?php echo $this->idTokenApplicationSecret; ?>"/></td><td>IDトークン署名に利用します。<br/>アプリケーション秘密鍵が無いアプリ(サーバレスアプリなど)は未入力で問題ありません。</td>
+                </tr>
+                <tr>
+                    <td>アクセストークン</td><td><input type="text" name="id_token_access_token" class="id_token" value="<?php echo $this->idTokenAccessToken; ?>"/></td><td>IDトークン生成情報として内部的に使用します。<br/>特に指定があれば入力してください。</td>
+                </tr>
+            </tbody>
+        </table>
+        <table border="1">
+            <tr>
+                <th>キー</th><th>内容</th><th>値</th><th>備考</th>
+            </tr>
+            <tr>
+                <td>iss</td><td>IDトークンの発行元(=MISPから通知された文字列です。<br/>通常はURLになります。(エンドポイントURLではありません))</td><td><input type="text" name="id_token_iss" class="id_token" value="<?php echo $this->idTokenIss; ?>"/><span class="required">(必須)</span></td><td>http://dev-misp.maql-games.jp</td>
+            </tr>
+            <tr>
+                <td>aud</td><td>アプリケーションID</td><td><input type="text" name="id_token_aud" class="id_token" value="<?php echo $this->idTokenAud; ?>"/><span class="required">(必須)</span></td><td>misp0001</td>
+            </tr>
+            <tr>
+                <td>sub</td><td>ユーザー識別子</td><td><input type="text" name="id_token_sub" class="id_token" value="<?php echo $this->idTokenSub; ?>"/><span class="required">(必須)</span></td><td>12200001</td>
+            </tr>
+            <tr>
+                <td>exp</td><td>IDトークンの有効期限(UNIXタイムスタンプ)</td><td><input type="text" name="id_token_exp" class="id_token" value="<?php echo $this->idTokenExp; ?>"/><span class="required">(必須)</span></td><td>1451573999(有効期限なので未来日付のタイムスタンプを指定してください)<br/>(上記は2015-12-31 23:59:59のタイムスタンプ)</td>
+            </tr>
+            <tr>
+                <td>iat</td><td>現在日時(UNIXタイムスタンプ)</td><td><input type="text" name="id_token_iat" class="id_token" value="<?php echo $this->idTokenIat; ?>"/><span class="required">(必須)</span></td><td><?php echo time(); ?><br/>(上記は画面表示のたびに time() 関数で動的に表示しています)</td>
+            </tr>
+            <tr>
+                <td>nonce</td><td>nonce(リプレイ攻撃防止用のランダムな文字列)</td><td><input type="text" name="id_token_nonce" class="id_token" value="<?php echo $this->idTokenNonce; ?>"/><span class="required">(必須)</span></td><td><?php echo hash_hmac('sha256', mt_srand(), mt_srand()); ?></td>
+            </tr>
+        </table>
+        <input type="submit" name="generate_id_token" value="IDトークンよろしくお願いいたします"/>
+        <span style="display:block;">デキたIDトークン</span><textarea cols="200" rows="5"><?php echo $this->generatedIdToken; ?></textarea>
+    </div>
+
+    <h3>デコードもお願いします</h3>
+
+    <div>
+        <div>
+            <span style="display:block;">デコードしたいIDトークン</span><textarea cols="200" rows="5" name="decode_target_id_token"><?php echo $this->generatedIdToken; ?></textarea>
+        </div>
+        <input type="submit" name="decode_id_token" value="IDトークンのデコードよろしくお願いいたします"/>
+        <table border="1">
+            <tr>
+                <th>キー</th><th>IDトークンのなかに入っていた値</th><th>内容</th><th>備考</th>
+            </tr>
+            <tr>
+                <td>iss</td><td><?php echo $this->idTokenDecodedIss; ?></td><td>IDトークンの発行元(=MISPから通知された文字列です。<br/>通常はURLになります。(エンドポイントURLではありません))</td><td>http://dev-misp.maql-games.jp</td>
+            </tr>
+            <tr>
+                <td>aud</td><td><?php echo $this->idTokenDecodedAud; ?></td><td>アプリケーションID</td><td>misp0001</td>
+            </tr>
+            <tr>
+                <td>sub</td><td><?php echo $this->idTokenDecodedSub; ?></td><td>ユーザー識別子</td><td>12200001</td>
+            </tr>
+            <tr>
+                <td>exp</td><td><?php echo $this->idTokenDecodedExp; ?></td><td>IDトークンの有効期限(UNIXタイムスタンプ)</td><td>1451573999(有効期限なので未来日付のタイムスタンプを指定してください)<br/>(上記は2015-12-31 23:59:59のタイムスタンプ)</td>
+            </tr>
+            <tr>
+                <td>iat</td><td><?php echo $this->idTokenDecodedIat; ?><td>現在日時(UNIXタイムスタンプ)</td><td><?php echo time(); ?><br/>(上記は画面表示のたびに time() 関数で動的に表示しています)</td></td>
+            </tr>
+            <tr>
+                <td>at_hash</td><td><?php echo $this->idTokenDecodedAtHash; ?><td>アクセストークン検証用文字列</td><td>HQXawEXIr-qohWzpgxl9qw</td></td>
+            </tr>
+            <tr>
+                <td>nonce</td><td><?php echo $this->idTokenDecodedNonce; ?><td>nonce(リプレイ攻撃防止用のランダムな文字列)</td><td><?php echo hash_hmac('sha256', mt_srand(), mt_srand()); ?></td>
+            </tr>
+        </table>
+    </div>
+</form>
+<a href="/test">リセット</a>

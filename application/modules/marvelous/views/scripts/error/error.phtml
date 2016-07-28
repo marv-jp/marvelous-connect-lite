@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="//code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css" />
+    <link type="text/css" href="//dev.jtsage.com/cdn/simpledialog/latest/jquery.mobile.simpledialog.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/marvelous_resource/themes/jquery-mobile-marvelous.min.css">
+    <link type="text/css" href="/marvelous_resource/css/style.css" rel="stylesheet"/>
+    <script src="//code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="//code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
+    <script src="//dev.jtsage.com/cdn/simpledialog/latest/jquery.mobile.simpledialog2.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+</head>
+
+<body style="height:100%">
+    <script>
+        $.mobile.ajaxEnabled = false;
+        $(document).ready(function () {
+            $('#error-close').click(function (){
+                window.open('',"_self").close();
+                return false;
+            })
+        });
+    </script>
+    <div data-role="page">
+        <div data-role="header">
+            <h1 style ="width: 100%; margin-left:0"><img src="/marvelous_resource/img/marvelous.png" style="height: 24px; width: 24px; vertical-align: bottom"> Marvelous Connect</h1>
+        </div>
+        <div data-role="content">
+            <div>
+                <center>
+                    <div><?php echo $this->message ?></div>
+                </center>
+                
+                <!-- デバッグ出力 -->
+                <?php if (isset($this->exception)): ?>
+                    <div>
+                        <h3>Exception information:</h3>
+                        <p>
+                            <b>Message:</b> <?php echo $this->exception->getMessage() ?>
+                        </p>
+
+                        <h3>Stack trace:</h3>
+                        <pre><?php echo $this->exception->getTraceAsString() ?>
+                        </pre>
+
+                        <h3>Request Parameters:</h3>
+                        <pre><?php echo $this->escape(var_export($this->request->getParams(), true)) ?>
+                        </pre>
+                    </div>
+                <?php endif ?>
+            </div>
+        </div>
+    </div>    
+</body>
