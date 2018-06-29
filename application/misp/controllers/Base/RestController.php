@@ -17,6 +17,97 @@ abstract class Misp_Base_RestController extends Zend_Rest_Controller
     const SELECTOR_ALL = '@all';
 
     /**
+     * 所持通貨情報を扱うセレクタ
+     * 
+     * @var string SELECTOR_GROUP_REQUESTS
+     */
+    const SELECTOR_BALANCE = '@balance';
+
+    /**
+     * 所持通貨履歴を扱うセレクタ
+     * 
+     * @var string SELECTOR_GROUP_REQUESTS
+     */
+    const SELECTOR_HISTORY = '@history';
+
+    /**
+     * ペイメント種別：購入
+     * 
+     * @var string PAYMENT_TYPE_NAME_CREDIT
+     */
+    const PAYMENT_TYPE_NAME_CREDIT = 'credit';
+
+    /**
+     * ペイメント種別：ボーナス
+     * 
+     * @var string PAYMENT_TYPE_NAME_BONUS
+     */
+    const PAYMENT_TYPE_NAME_BONUS = 'bonus';
+
+    /**
+     * ペイメント種別：両替
+     * 
+     * @var string PAYMENT_TYPE_NAME_EXCHANGE
+     */
+    const PAYMENT_TYPE_NAME_EXCHANGE = 'exchange';
+
+    /**
+     * ペイメント種別：消費
+     * 
+     * @var string PAYMENT_TYPE_NAME_PAYMENT
+     */
+    const PAYMENT_TYPE_NAME_PAYMENT = 'payment';
+
+    /**
+     * ペイメントステータス：開始
+     * 
+     * @var string PAYMENT_STATUS_NAME_START
+     */
+    const PAYMENT_STATUS_NAME_START = 'start';
+
+    /**
+     * ペイメントステータス：エラー
+     * 
+     * @var string PAYMENT_TYPE_NAME_ERROR
+     */
+    const PAYMENT_STATUS_NAME_ERROR = 'error';
+
+    /**
+     * ペイメントステータス：確認
+     * 
+     * @var string PAYMENT_TYPE_NAME_CONFIRM
+     */
+    const PAYMENT_STATUS_NAME_CONFIRM = 'confirm';
+
+    /**
+     * ペイメントステータス：注文
+     * 
+     * @var string PAYMENT_TYPE_NAME_ORDER
+     */
+    const PAYMENT_STATUS_NAME_ORDER = 'order';
+
+    /**
+     * ペイメントステータス：キャンセル
+     * 
+     * @var string PAYMENT_TYPE_NAME_CANCEL
+     */
+    const PAYMENT_TYPE_NAME_CANCEL = 'cancel';
+
+    /**
+     * ペイメントステータス：取消
+     * 
+     * @var string PAYMENT_TYPE_NAME_VOID
+     */
+    const PAYMENT_TYPE_NAME_VOID = 'void';
+
+    /**
+     * ペイメントステータス：完了
+     * 
+     * @var string PAYMENT_TYPE_NAME_COMPLETE
+     */
+    const PAYMENT_STATUS_NAME_COMPLETE = 'complete';
+
+    /**
      * 許可するリクエストパラメータ項目
      * 
      * @var array $_allowRequestParameters
@@ -169,6 +260,20 @@ abstract class Misp_Base_RestController extends Zend_Rest_Controller
             case 'Common_Exception_AlreadyExists':
                 // Conflict のステータスコード
                 $statusCode       = 409;
+                break;
+            case 'Common_Exception_PreconditionFailed':
+                // 前提条件に一致しない場合のステータスコード
+                //   例) 異なるプラットフォームで処理していた決済情報が存在する場合のエラー
+                $statusCode       = 412;
+                break;
+            case 'Common_Exception_Verify':
+                // 購入時：レシート検証エラー
+                // 両替時：処理不能な両替レート
+                $statusCode       = 422;
+                break;
+            case 'Common_Exception_DataInconsistencies':
+                // 処理中仮想通貨の無効化による一時的な残高不足
+                $statusCode       = 507;
                 break;
             case 'Akita_OAuth2_Server_Error':
                 // Akitaの例外対応

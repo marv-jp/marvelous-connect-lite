@@ -765,15 +765,19 @@ abstract class BaseFacebook
     }
 
     try {
+      // APIバージョン2.3対応
       // need to circumvent json_decode by calling _oauthRequest
       // directly, since response isn't JSON format.
       $access_token_response =
-        $this->_oauthRequest(
-          $this->getUrl('graph', '/oauth/access_token'),
-          $params = array('client_id' => $this->getAppId(),
+            Common_Json::decode(
+                $this->_oauthRequest(
+                $this->getUrl('graph', '/oauth/access_token'),
+                $params = array('client_id' => $this->getAppId(),
                           'client_secret' => $this->getAppSecret(),
                           'redirect_uri' => $redirect_uri,
-                          'code' => $code));
+                          'code' => $code))
+            );
+      
     } catch (FacebookApiException $e) {
       // most likely that user very recently revoked authorization.
       // In any event, we don't have an access token, so say so.
@@ -783,14 +787,8 @@ abstract class BaseFacebook
     if (empty($access_token_response)) {
       return false;
     }
-
-    $response_params = array();
-    parse_str($access_token_response, $response_params);
-    if (!isset($response_params['access_token'])) {
-      return false;
-    }
-
-    return $response_params['access_token'];
+    
+    return $access_token_response['access_token'];
   }
 
   /**

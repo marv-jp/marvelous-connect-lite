@@ -3,6 +3,81 @@
 abstract class App_BaseController extends Misp_Base_RestController
 {
 
+    /**
+     * API名：仮想通貨系API
+     * 
+     * @var string API_NAME_PAYMENT
+     */
+    const API_NAME_PAYMENT = 'payment';
+
+    /**
+     * API名：所持通貨取得系API
+     * 
+     * @var string API_NAME_PAYMENT_BALANCE
+     */
+    const API_NAME_PAYMENT_BALANCE = 'paymentBalance';
+
+    /**
+     * API名：通貨履歴取得系API
+     * 
+     * @var string API_NAME_PAYMENT_HISTORY
+     */
+    const API_NAME_PAYMENT_HISTORY = 'paymentHistory';
+
+    /**
+     * API名：購入系API
+     * 
+     * @var string API_NAME_PAYMENT
+     */
+    const API_NAME_CREDIT = 'paymentCredit';
+
+    /**
+     * API名：ボーナス系API
+     * 
+     * @var string API_NAME_PAYMENT
+     */
+    const API_NAME_BONUS = 'paymentBonus';
+
+    /**
+     * API名：両替/消費系API
+     * 
+     * @var string API_NAME_PAYMENT
+     */
+    const API_NAME_EXCHANGE_PAYMENT = 'paymentExchangePayment';
+
+    /**
+     * ペイメント種別：内部ステータス値と意味付け値のマッピング
+     * 
+     * 「ロジックからの意味不明」な数値を「意味のあるキーワード」に対応付ける決定権を持っているのは
+     * このアプリケーションユーザグループAPIなんだぜ
+     * 
+     * @var array $_paymentTypeMapping
+     */
+    protected $_paymentTypeMapping = array(
+        Logic_Abstract::PAYMENT_TYPE_CREDIT   => self::PAYMENT_TYPE_NAME_CREDIT,
+        Logic_Abstract::PAYMENT_TYPE_BONUS    => self::PAYMENT_TYPE_NAME_BONUS,
+        Logic_Abstract::PAYMENT_TYPE_EXCHANGE => self::PAYMENT_TYPE_NAME_EXCHANGE,
+        Logic_Abstract::PAYMENT_TYPE_PAYMENT  => self::PAYMENT_TYPE_NAME_PAYMENT,
+    );
+
+    /**
+     * ペイメントステータス：内部ステータス値と意味付け値のマッピング
+     * 
+     * 「ロジックからの意味不明」な数値を「意味のあるキーワード」に対応付ける決定権を持っているのは
+     * このアプリケーションユーザグループAPIなんだぜ
+     * 
+     * @var array $_paymentStatusMapping
+     */
+    protected $_paymentStatusMapping = array(
+        Logic_Abstract::PAYMENT_STATUS_START    => self::PAYMENT_STATUS_NAME_START,
+        Logic_Abstract::PAYMENT_STATUS_ERROR    => self::PAYMENT_STATUS_NAME_ERROR,
+        Logic_Abstract::PAYMENT_STATUS_CONFIRM  => self::PAYMENT_STATUS_NAME_CONFIRM,
+        Logic_Abstract::PAYMENT_STATUS_CANCEL   => self::PAYMENT_TYPE_NAME_CANCEL,
+        Logic_Abstract::PAYMENT_STATUS_VOID     => self::PAYMENT_TYPE_NAME_VOID,
+        Logic_Abstract::PAYMENT_STATUS_ORDER    => self::PAYMENT_STATUS_NAME_ORDER,
+        Logic_Abstract::PAYMENT_STATUS_COMPLETE => self::PAYMENT_STATUS_NAME_COMPLETE,
+    );
+
     public function init()
     {
         // 親クラスの初期化処理を先に実行
@@ -505,6 +580,54 @@ abstract class App_BaseController extends Misp_Base_RestController
         if ($v->getErrors()) {
             throw new Common_Exception_IllegalParameter(sprintf('不正なパラメータです:%s', print_r($v->getErrors(), 1)));
         }
+    }
+
+    /**
+     * ペイメント種別：内部ステータス値をAPIレイヤーの意味付け値に変換します
+     * 
+     * ロジックのステータス値をマッピングするのはAPIレイヤーの仕事。<br>
+     * →ロジックはステータス値を外部にどう使われるか知らない<br>
+     * <br>
+     * 反対に、APIレイヤーの意味付け値をロジックのステータス値にマッピングするのはロジックレイヤーの仕事。<br>
+     * →APIは意味付け値をロジックでどう使われるか知る必要はない。
+     * 
+     * @param int $paymentType ロジックレイヤーの内部ステータス値
+     * @return string 意味付け値
+     */
+    protected function _convertPaymentTypeToPaymentType($paymentType)
+    {
+        return $this->_paymentTypeMapping[$paymentType];
+    }
+
+    /**
+     * ペイメントステータス：内部ステータス値をAPIレイヤーの意味付け値に変換します
+     * 
+     * ロジックのステータス値をマッピングするのはAPIレイヤーの仕事。<br>
+     * →ロジックはステータス値を外部にどう使われるか知らない<br>
+     * <br>
+     * 反対に、APIレイヤーの意味付け値をロジックのステータス値にマッピングするのはロジックレイヤーの仕事。<br>
+     * →APIは意味付け値をロジックでどう使われるか知る必要はない。
+     * 
+     * @param int $paymentStatus ロジックレイヤーの内部ステータス値
+     * @return string 意味付け値
+     */
+    protected function _convertPaymentStatusToOrderStatus($paymentStatus)
+    {
+        return $this->_paymentStatusMapping[$paymentStatus];
+    }
+
+    /**
+     * xxxx-xx-xx yy:yy:yy 形式の日付文字列を、OpenSocial 仕様の日付フォーマットに変換します。
+     * 
+     * xxxx-xx-xx yy:yy:yy → xxxx-xx-xxTyy:yy:yy+09:00:00
+     * 
+     * @param string $datetime 変換前の日付文字列
+     * @return string OpenSocial 仕様の日付文字列
+     * @link http://opensocial.github.io/spec/2.5.1/Core-Data.xml#Date OpensSocial の日付仕様
+     */
+    protected function _convertToOpnesocialDateformat($datetime)
+    {
+        return date('c', strtotime($datetime));
     }
 
     /**

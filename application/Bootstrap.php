@@ -52,6 +52,11 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         $logConfig      = $options->log->toArray();
         $mispConfig     = $options->misp->toArray();
 
+        $auth             = NULL;
+        $ngWordConfig     = NULL;
+        $httpClientConfig = NULL;
+        $paymentConfig    = NULL;
+
         if ($options->auth) {
             $auth = $options->auth->toArray();
         }
@@ -60,13 +65,22 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
             $ngWordConfig = $options->ngWord->toArray();
         }
 
+        if ($options->httpClient) {
+            $httpClientConfig = $options->httpClient->toArray();
+        }
+
+        if ($options->payment) {
+            $paymentConfig  = $options->payment->toArray();  // Payment API設定群
+        }
+
         Zend_Registry::set('database_configs', $dbConfig);
         Zend_Registry::set('log_configs', $logConfig);
-        Zend_Registry::set('httpClient_configs', $options->httpClient->toArray());
         Zend_Registry::set('auth_configs', $auth ? $auth : null);
+        Zend_Registry::set('httpClient_configs', $httpClientConfig ? $httpClientConfig : null);
         Zend_Registry::set('misp', $mispConfig);
         Zend_Registry::set('ngWord_configs', $ngWordConfig ? $ngWordConfig : null);
         Zend_Registry::set('cache_configs', $options->cache);
+        Zend_Registry::set('apiPayment_config', $paymentConfig ? $paymentConfig : null);
     }
 
     protected function _initDb()

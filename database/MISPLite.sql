@@ -4,6 +4,10 @@ SET SESSION FOREIGN_KEY_CHECKS=0;
 
 DROP INDEX created_date ON application_user;
 DROP INDEX updated_date ON application_user;
+DROP INDEX application_user_id ON application_user_currency;
+DROP INDEX expired_date ON application_user_currency;
+DROP INDEX payment_platform_user_id ON application_user_payment;
+DROP INDEX application_user_id ON application_user_payment_cancel_log;
 DROP INDEX created_date ON application_user_platform_relation;
 DROP INDEX updated_date ON application_user_platform_relation;
 DROP INDEX created_date ON platform_user;
@@ -24,10 +28,24 @@ DROP TABLE application_redirect_uri;
 DROP TABLE user_platform_application_relation;
 DROP TABLE application;
 DROP TABLE application_user;
+DROP TABLE application_user_currency;
+DROP TABLE application_user_currency_payment_item;
+DROP TABLE application_user_target_currency_payment_item;
+DROP TABLE application_user_target_product_payment_item;
+DROP TABLE application_user_payment_item;
+DROP TABLE application_user_payment;
+DROP TABLE application_user_payment_cancel_log;
+DROP TABLE application_user_payment_id;
+DROP TABLE application_user_payment_item_id;
 DROP TABLE application_user_platform_relation;
 DROP TABLE developer;
+DROP TABLE payment_device;
+DROP TABLE payment_platform;
+DROP TABLE payment_rating;
 DROP TABLE platform_user;
 DROP TABLE platform;
+DROP TABLE platform_product_item;
+DROP TABLE platform_product;
 DROP TABLE user;
 
 
@@ -83,6 +101,164 @@ CREATE TABLE application_user
 ) COMMENT = 'アプリケーションユーザ';
 
 
+CREATE TABLE application_user_currency
+(
+	application_user_payment_item_id bigint unsigned NOT NULL COMMENT 'アプリケーションユーザペイメントアイテムID',
+	application_user_payment_id bigint unsigned COMMENT 'アプリケーションユーザペイメントID',
+	application_currency_id varchar(255) NOT NULL COMMENT 'アプリケーション通貨ID',
+	payment_platform_id varchar(191) NOT NULL COMMENT 'ペイメントプラットフォームID',
+	payment_device_id varchar(11) NOT NULL COMMENT 'ペイメントデバイスID',
+	payment_rating_id varchar(11) NOT NULL COMMENT 'ペイメントレーティングID',
+	application_user_id varchar(255) NOT NULL COMMENT 'アプリケーションユーザID',
+	application_id varchar(11) NOT NULL COMMENT 'アプリケーションID',
+	application_world_id varchar(255) NOT NULL COMMENT 'アプリケーションワールドID',
+	unit_price decimal(13,4) unsigned NOT NULL COMMENT '単価',
+	currency_amount int unsigned NOT NULL COMMENT '通貨額',
+	-- iOS: purchase_date
+	-- Android: purchaseTime
+	-- PSN: created_date (platform_payment_item)
+	-- DMM PC: ORDERED_TIME
+	-- DMM Android: orderedTime
+	executed_date datetime COMMENT '実行日時 : iOS: purchase_date
+Android: purchaseTime
+PSN: created_date (platform_payment_item)
+DMM PC: ORDERED_TIME
+DMM Android: orderedTime',
+	expired_date datetime COMMENT '期限日時',
+	created_date datetime NOT NULL COMMENT '作成日時',
+	updated_date datetime NOT NULL COMMENT '更新日時',
+	deleted_date datetime COMMENT '削除日時',
+	PRIMARY KEY (application_user_payment_item_id, application_currency_id, payment_platform_id, payment_device_id, payment_rating_id, application_user_id, application_id, application_world_id, unit_price)
+) COMMENT = 'アプリケーションユーザ通貨';
+
+
+CREATE TABLE application_user_currency_payment_item
+(
+	application_user_payment_item_id bigint unsigned NOT NULL COMMENT 'アプリケーションユーザペイメントアイテムID',
+	application_currency_id varchar(255) NOT NULL COMMENT 'アプリケーション通貨ID',
+	currency_amount int unsigned NOT NULL COMMENT '通貨額',
+	created_date datetime NOT NULL COMMENT '作成日時',
+	updated_date datetime NOT NULL COMMENT '更新日時',
+	deleted_date datetime COMMENT '削除日時',
+	PRIMARY KEY (application_user_payment_item_id, application_currency_id)
+) COMMENT = 'アプリケーションユーザ通貨ペイメントアイテム';
+
+
+CREATE TABLE application_user_payment
+(
+	application_user_payment_id bigint unsigned NOT NULL COMMENT 'アプリケーションユーザペイメントID',
+	application_user_id varchar(255) NOT NULL COMMENT 'アプリケーションユーザID',
+	application_id varchar(11) NOT NULL COMMENT 'アプリケーションID',
+	application_world_id varchar(255) NOT NULL COMMENT 'アプリケーションワールドID',
+	payment_platform_user_id varchar(255) COMMENT 'ペイメントプラットフォームユーザID',
+	payment_platform_id varchar(191) NOT NULL COMMENT 'ペイメントプラットフォームID',
+	payment_device_id varchar(11) NOT NULL COMMENT 'ペイメントデバイスID',
+	payment_rating_id varchar(11) NOT NULL COMMENT 'ペイメントレーティングID',
+	-- 10: credit
+	-- 11: bonus
+	-- 20: exchange
+	-- 30: payment
+	-- 
+	-- 
+	payment_type tinyint NOT NULL COMMENT 'ペイメント種別 : 10: credit
+11: bonus
+20: exchange
+30: payment
+
+',
+	-- 0: start
+	-- 1: error
+	-- 2: confirm
+	-- 3: order
+	-- 10: complete
+	-- 
+	payment_status tinyint NOT NULL COMMENT 'ペイメントステータス : 0: start
+1: error
+2: confirm
+3: order
+10: complete
+',
+	created_date datetime NOT NULL COMMENT '作成日時',
+	updated_date datetime NOT NULL COMMENT '更新日時',
+	deleted_date datetime COMMENT '削除日時',
+	PRIMARY KEY (application_user_payment_id),
+	CONSTRAINT application_user_id UNIQUE (application_user_id, application_id, application_world_id)
+) COMMENT = 'アプリケーションユーザペイメント';
+
+
+CREATE TABLE application_user_payment_cancel_log
+(
+	application_user_payment_id bigint unsigned NOT NULL COMMENT 'アプリケーションユーザペイメントID',
+	application_user_id varchar(255) NOT NULL COMMENT 'アプリケーションユーザID',
+	application_id varchar(11) NOT NULL COMMENT 'アプリケーションID',
+	application_world_id varchar(255) NOT NULL COMMENT 'アプリケーションワールドID',
+	payment_platform_id varchar(191) NOT NULL COMMENT 'ペイメントプラットフォームID',
+	payment_device_id varchar(11) NOT NULL COMMENT 'ペイメントデバイスID',
+	payment_rating_id varchar(11) NOT NULL COMMENT 'ペイメントレーティングID',
+	-- 10: credit
+	-- 11: bonus
+	-- 20: exchange
+	-- 30: payment
+	-- 
+	-- 
+	payment_type tinyint NOT NULL COMMENT 'ペイメント種別 : 10: credit
+11: bonus
+20: exchange
+30: payment
+
+',
+	-- 0: start
+	-- 1: error
+	-- 2: confirm
+	-- 3: order
+	-- 10: complete
+	-- 
+	payment_status tinyint NOT NULL COMMENT 'ペイメントステータス : 0: start
+1: error
+2: confirm
+3: order
+10: complete
+',
+	-- アプリケーションユーザペイメントの作成日時
+	started_date datetime NOT NULL COMMENT '開始日時 : アプリケーションユーザペイメントの作成日時',
+	created_date datetime NOT NULL COMMENT '作成日時',
+	updated_date datetime NOT NULL COMMENT '更新日時',
+	deleted_date datetime COMMENT '削除日時',
+	PRIMARY KEY (application_user_payment_id, application_id)
+) COMMENT = 'アプリケーションユーザペイメントキャンセルログ';
+
+
+CREATE TABLE application_user_payment_id
+(
+	application_user_payment_id bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'アプリケーションユーザペイメントID',
+	created_date datetime NOT NULL COMMENT '作成日時',
+	updated_date datetime NOT NULL COMMENT '更新日時',
+	deleted_date datetime COMMENT '削除日時',
+	PRIMARY KEY (application_user_payment_id)
+) COMMENT = 'アプリケーションユーザペイメントID';
+
+
+CREATE TABLE application_user_payment_item
+(
+	application_user_payment_item_id bigint unsigned NOT NULL COMMENT 'アプリケーションユーザペイメントアイテムID',
+	application_user_payment_id bigint unsigned NOT NULL COMMENT 'アプリケーションユーザペイメントID',
+	created_date datetime NOT NULL COMMENT '作成日時',
+	updated_date datetime NOT NULL COMMENT '更新日時',
+	deleted_date datetime COMMENT '削除日時',
+	PRIMARY KEY (application_user_payment_item_id)
+) COMMENT = 'アプリケーションユーザペイメントアイテム';
+
+
+CREATE TABLE application_user_payment_item_id
+(
+	application_user_payment_item_id bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'アプリケーションユーザペイメントアイテムID',
+	created_date datetime NOT NULL COMMENT '作成日時',
+	updated_date datetime NOT NULL COMMENT '更新日時',
+	deleted_date datetime COMMENT '削除日時',
+	PRIMARY KEY (application_user_payment_item_id)
+) COMMENT = 'アプリケーションユーザペイメントアイテムID';
+
+
 CREATE TABLE application_user_platform_relation
 (
 	application_user_id varchar(255) NOT NULL COMMENT 'アプリケーションユーザID',
@@ -97,6 +273,31 @@ CREATE TABLE application_user_platform_relation
 ) COMMENT = 'アプリケーションユーザプラットフォーム関連';
 
 
+CREATE TABLE application_user_target_currency_payment_item
+(
+	application_user_payment_item_id bigint unsigned NOT NULL COMMENT 'アプリケーションユーザペイメントアイテムID',
+	application_currency_id varchar(255) NOT NULL COMMENT 'アプリケーション通貨ID',
+	currency_amount int unsigned NOT NULL COMMENT '通貨額',
+	price int unsigned NOT NULL COMMENT '価格',
+	created_date datetime NOT NULL COMMENT '作成日時',
+	updated_date datetime NOT NULL COMMENT '更新日時',
+	deleted_date datetime COMMENT '削除日時',
+	PRIMARY KEY (application_user_payment_item_id, application_currency_id, price)
+) COMMENT = 'アプリケーションユーザターゲット通貨ペイメントアイテム';
+
+
+CREATE TABLE application_user_target_product_payment_item
+(
+	application_user_payment_item_id bigint unsigned NOT NULL COMMENT 'アプリケーションユーザペイメントアイテムID',
+	application_product_id varchar(255) NOT NULL COMMENT 'アプリケーション商品ID',
+	product_quantity int unsigned NOT NULL COMMENT '商品数量',
+	created_date datetime NOT NULL COMMENT '作成日時',
+	updated_date datetime NOT NULL COMMENT '更新日時',
+	deleted_date datetime COMMENT '削除日時',
+	PRIMARY KEY (application_user_payment_item_id)
+) COMMENT = 'アプリケーションユーザターゲット商品ペイメントアイテム';
+
+
 CREATE TABLE developer
 (
 	developer_id varchar(255) NOT NULL COMMENT 'デベロッパID',
@@ -106,6 +307,40 @@ CREATE TABLE developer
 	deleted_date datetime COMMENT '削除日時',
 	PRIMARY KEY (developer_id)
 ) COMMENT = 'デベロッパ';
+
+
+CREATE TABLE payment_device
+(
+	payment_device_id varchar(11) NOT NULL COMMENT 'ペイメントデバイスID',
+	device_name varchar(255) NOT NULL COMMENT 'デバイス名',
+	created_date datetime NOT NULL COMMENT '作成日時',
+	updated_date datetime NOT NULL COMMENT '更新日時',
+	deleted_date datetime COMMENT '削除日時',
+	PRIMARY KEY (payment_device_id)
+) COMMENT = 'ペイメントデバイス';
+
+
+CREATE TABLE payment_platform
+(
+	payment_platform_id varchar(191) NOT NULL COMMENT 'ペイメントプラットフォームID',
+	platform_name varchar(255) NOT NULL COMMENT 'プラットフォーム名',
+	platform_domain varchar(255) NOT NULL COMMENT 'プラットフォームドメイン',
+	created_date datetime NOT NULL COMMENT '作成日時',
+	updated_date datetime NOT NULL COMMENT '更新日時',
+	deleted_date datetime COMMENT '削除日時',
+	PRIMARY KEY (payment_platform_id)
+) COMMENT = 'ペイメントプラットフォーム';
+
+
+CREATE TABLE payment_rating
+(
+	payment_rating_id varchar(11) NOT NULL COMMENT 'ペイメントレーティングID',
+	rating_name varchar(255) NOT NULL COMMENT 'レーティング名',
+	created_date datetime NOT NULL COMMENT '作成日時',
+	updated_date datetime NOT NULL COMMENT '更新日時',
+	deleted_date datetime COMMENT '削除日時',
+	PRIMARY KEY (payment_rating_id)
+) COMMENT = 'ペイメントレーティング';
 
 
 CREATE TABLE platform
@@ -127,6 +362,51 @@ CREATE TABLE platform
 	deleted_date datetime COMMENT '削除日時',
 	PRIMARY KEY (platform_id)
 ) COMMENT = 'プラットフォーム';
+
+
+CREATE TABLE platform_product
+(
+	-- iOS: product_id
+	-- Android: productId
+	-- DMM: SKU_ID
+	platform_product_id varchar(255) NOT NULL COMMENT 'プラットフォーム商品ID : iOS: product_id
+Android: productId
+DMM: SKU_ID',
+	payment_platform_id varchar(191) NOT NULL COMMENT 'ペイメントプラットフォームID',
+	payment_device_id varchar(11) NOT NULL COMMENT 'ペイメントデバイスID',
+	payment_rating_id varchar(11) NOT NULL COMMENT 'ペイメントレーティングID',
+	application_id varchar(11) NOT NULL COMMENT 'アプリケーションID',
+	platform_product_name varchar(255) COMMENT 'プラットフォーム商品名',
+	platform_product_image_url varchar(255) COMMENT 'プラットフォーム商品画像URL',
+	platform_product_description text COMMENT 'プラットフォーム商品説明',
+	created_date datetime NOT NULL COMMENT '作成日時',
+	updated_date datetime NOT NULL COMMENT '更新日時',
+	deleted_date datetime COMMENT '削除日時',
+	PRIMARY KEY (platform_product_id, payment_platform_id, payment_device_id, payment_rating_id, application_id)
+) COMMENT = 'プラットフォーム商品';
+
+
+CREATE TABLE platform_product_item
+(
+	platform_product_item_id bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'プラットフォーム商品アイテムID',
+	-- iOS: product_id
+	-- Android: productId
+	-- DMM: SKU_ID
+	platform_product_id varchar(255) NOT NULL COMMENT 'プラットフォーム商品ID : iOS: product_id
+Android: productId
+DMM: SKU_ID',
+	payment_platform_id varchar(191) NOT NULL COMMENT 'ペイメントプラットフォームID',
+	payment_device_id varchar(11) NOT NULL COMMENT 'ペイメントデバイスID',
+	payment_rating_id varchar(11) NOT NULL COMMENT 'ペイメントレーティングID',
+	application_id varchar(11) NOT NULL COMMENT 'アプリケーションID',
+	application_currency_id varchar(255) NOT NULL COMMENT 'アプリケーション通貨ID',
+	unit_price decimal(13,4) unsigned NOT NULL COMMENT '単価',
+	currency_amount int unsigned NOT NULL COMMENT '通貨額',
+	created_date datetime NOT NULL COMMENT '作成日時',
+	updated_date datetime NOT NULL COMMENT '更新日時',
+	deleted_date datetime COMMENT '削除日時',
+	PRIMARY KEY (platform_product_item_id)
+) COMMENT = 'プラットフォーム商品アイテム';
 
 
 CREATE TABLE platform_user
@@ -207,6 +487,54 @@ ALTER TABLE user_platform_application_relation
 ;
 
 
+ALTER TABLE application_user_payment_item
+	ADD FOREIGN KEY (application_user_payment_id)
+	REFERENCES application_user_payment (application_user_payment_id)
+	ON UPDATE RESTRICT
+	ON DELETE CASCADE
+;
+
+
+ALTER TABLE application_user_payment
+	ADD FOREIGN KEY (application_user_payment_id)
+	REFERENCES application_user_payment_id (application_user_payment_id)
+	ON UPDATE RESTRICT
+	ON DELETE RESTRICT
+;
+
+
+ALTER TABLE application_user_currency_payment_item
+	ADD FOREIGN KEY (application_user_payment_item_id)
+	REFERENCES application_user_payment_item (application_user_payment_item_id)
+	ON UPDATE RESTRICT
+	ON DELETE CASCADE
+;
+
+
+ALTER TABLE application_user_target_currency_payment_item
+	ADD FOREIGN KEY (application_user_payment_item_id)
+	REFERENCES application_user_payment_item (application_user_payment_item_id)
+	ON UPDATE RESTRICT
+	ON DELETE CASCADE
+;
+
+
+ALTER TABLE application_user_target_product_payment_item
+	ADD FOREIGN KEY (application_user_payment_item_id)
+	REFERENCES application_user_payment_item (application_user_payment_item_id)
+	ON UPDATE RESTRICT
+	ON DELETE CASCADE
+;
+
+
+ALTER TABLE application_user_payment_item
+	ADD FOREIGN KEY (application_user_payment_item_id)
+	REFERENCES application_user_payment_item_id (application_user_payment_item_id)
+	ON UPDATE RESTRICT
+	ON DELETE RESTRICT
+;
+
+
 ALTER TABLE application
 	ADD FOREIGN KEY (developer_id)
 	REFERENCES developer (developer_id)
@@ -218,6 +546,14 @@ ALTER TABLE application
 ALTER TABLE platform_user
 	ADD FOREIGN KEY (platform_id)
 	REFERENCES platform (platform_id)
+	ON UPDATE RESTRICT
+	ON DELETE RESTRICT
+;
+
+
+ALTER TABLE platform_product_item
+	ADD FOREIGN KEY (platform_product_id, payment_platform_id, payment_device_id, payment_rating_id, application_id)
+	REFERENCES platform_product (platform_product_id, payment_platform_id, payment_device_id, payment_rating_id, application_id)
 	ON UPDATE RESTRICT
 	ON DELETE RESTRICT
 ;
@@ -252,6 +588,10 @@ ALTER TABLE user_platform_application_relation
 
 CREATE INDEX created_date USING BTREE ON application_user (created_date ASC);
 CREATE INDEX updated_date USING BTREE ON application_user (updated_date ASC);
+CREATE INDEX application_user_id USING BTREE ON application_user_currency (application_user_id ASC, application_id ASC, application_world_id ASC, application_currency_id ASC, payment_platform_id ASC, expired_date ASC);
+CREATE INDEX expired_date USING BTREE ON application_user_currency (expired_date ASC);
+CREATE INDEX payment_platform_user_id USING BTREE ON application_user_payment (payment_platform_user_id ASC, payment_platform_id ASC);
+CREATE INDEX application_user_id USING BTREE ON application_user_payment_cancel_log (application_user_id ASC, application_id ASC, application_world_id ASC);
 CREATE INDEX created_date USING BTREE ON application_user_platform_relation (created_date ASC);
 CREATE INDEX updated_date USING BTREE ON application_user_platform_relation (updated_date ASC);
 CREATE INDEX created_date USING BTREE ON platform_user (created_date ASC);

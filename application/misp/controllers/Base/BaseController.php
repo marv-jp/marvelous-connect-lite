@@ -98,6 +98,15 @@ abstract class Misp_Base_BaseController extends Zend_Controller_Action
                 // Conflict のステータスコード
                 $statusCode = 409;
                 break;
+            case 'Common_Exception_PreconditionFailed':
+                // 前提条件に一致しない場合のステータスコード
+                //   例) 異なるプラットフォームで処理していた決済情報が存在する場合のエラー
+                $statusCode = 412;
+                break;
+            case 'Common_Exception_Verify':
+                // レシート検証エラー
+                $statusCode = 422;
+                break;
             case 'Akita_OAuth2_Server_Error':
                 // Akitaの例外対応
                 // Akitaの方で設定されたレスポンスコードをセットする

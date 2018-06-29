@@ -69,7 +69,7 @@ abstract class Application_Model_DbTable_Pk_TriggeredIncrement extends Applicati
         $this->_db->insert($tableSpec, $data);
 
         // ID振り出しテーブル(対象テーブル名_id)の最大値を取得
-        $selectSql   = 'select max(' . $pkIdentity . ') as maxId from ' . $this->_name;
+        $selectSql   = 'select @last_insert_id as maxId';
         $result      = $this->_db->query($selectSql);
         $resultArray = $result->fetchAll(Zend_Db::FETCH_ASSOC);
 

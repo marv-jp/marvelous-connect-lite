@@ -313,7 +313,9 @@ class Hybrid_Providers_Facebook extends Hybrid_Provider_Model
         
         $endpointUrl = 'https://graph.facebook.com/oauth/access_token';
         
-        return str_replace('access_token=', '', $this->_post($endpointUrl, $body));
+        // APIバージョン2.3対応
+        $response = Common_Json::decode($this->_post($endpointUrl, $body));
+        return $response['access_token'];
     }
     
     protected function _requestDebugToken()

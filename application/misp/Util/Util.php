@@ -134,4 +134,74 @@ class Misp_Util
         return !(self::isEmpty($v));
     }
 
+    /**
+     * リクエストヘッダを取得します。(Nginx対応)
+     * 
+     * @return array リクエストヘッダの配列
+     */
+    public static function getRequestHeaders()
+    {
+        $headers = array();
+
+        if (!function_exists('apache_request_headers')) {
+            // apache_request_headers関数が存在しない場合は、環境変数より取得する
+            foreach ($_SERVER as $name => $value) {
+                if (substr($name, 0, 5) == 'HTTP_') {
+                    $name = substr($name, 5);
+                    $name = str_replace('_', ' ', $name);
+                    $name = strtolower($name);
+                    $name = ucwords($name);
+                    $name = str_replace(' ', '-', $name);
+
+                    $headers[$name] = $value;
+                }
+            }
+        } else {
+            $headers = apache_request_headers();
+        }
+
+        return $headers;
+    }
+
+    /**
+     * モデルの配列を受取り、指定したプロパティ名のメソッドでその値の配列を生成し返します
+     * 
+     * @param object[] $models
+     * @param string $propertyName
+     * @param string $method
+     * @return array
+     */
+    public static function generateArrayByModel($models, $propertyName, $method = NULL)
+    {
+        // メソッド名生成(NULLの場合)
+        if (!$method) {
+            $method = 'get' + ucfirst($propertyName);
+        }
+
+        // 戻り値初期化
+        $array = array();
+
+        // モデルの配列から、プロパティ名のメソッドで配列を生成し直す
+        foreach ($models as $model) {
+            $array[$propertyName][] = $model->$method();
+        }
+
+        return $array;
+    }
+
+    /**
+     * リダイレクトURLに含めたいパラメータをエンコードして返す
+     * 
+     * @param array $params リダイレクトURLに含めたいパラメータ
+     * @return string 
+     */
+    public static function buildHttpParameter(array $params)
+    {
+        $parameter = '';
+        if ($params) {
+            $parameter = '?' . http_build_query($params);
+        }
+        return $parameter;
+    }
+
 }

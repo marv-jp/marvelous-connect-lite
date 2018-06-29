@@ -90,7 +90,7 @@ class Common_Session_SaveHandler_Cache implements Zend_Session_SaveHandler_Inter
     {
         if (!$data = $this->_cache->load($id))
         {
-            return null;
+            return '';
         }
         return $data;
     }

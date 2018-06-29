@@ -66,7 +66,7 @@ class Marvelous_AuthorizationController extends Zend_Controller_Action
         $logicUser->setUserLogic($logicUser);
 
         // process request
-        $headers              = apache_request_headers();
+        $headers              = Misp_Util::getRequestHeaders();
         $authorizationRequest = new Akita_OpenIDConnect_Server_Request('authorization', $_SERVER, $_GET, $headers);
         $dataHandler          = new OpenIDConnect_Server_DataHandler($authorizationRequest);
         $authHandler          = new OpenIDConnect_Server_AuthorizationHandler();
@@ -149,7 +149,7 @@ class Marvelous_AuthorizationController extends Zend_Controller_Action
 
         // 不正なパラメータがないかチェック するための準備
         // process request
-        $headers              = apache_request_headers();
+        $headers              = Misp_Util::getRequestHeaders();
         $authorizationRequest = new Akita_OpenIDConnect_Server_Request('authorization', $_SERVER, $_GET, $headers);
         $dataHandler          = new OpenIDConnect_Server_DataHandler($authorizationRequest);
         $authHandler          = new OpenIDConnect_Server_AuthorizationHandler();

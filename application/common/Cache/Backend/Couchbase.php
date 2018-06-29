@@ -145,7 +145,7 @@ class Common_Cache_Backend_Couchbase extends Zend_Cache_Backend implements Zend_
     public function load($id, $doNotTestCacheValidity = false)
     {
         $server = $this->_options['server_id'];
-        $tmp = Zend_Json::decode($this->_couchbase[$server]->get($id));
+        $tmp = Common_Json::decode($this->_couchbase[$server]->get($id));
         if (isset($tmp[0])) {
             return serialize($tmp[0]);
         }
@@ -161,7 +161,7 @@ class Common_Cache_Backend_Couchbase extends Zend_Cache_Backend implements Zend_
     public function test($id)
     {
         $server = $this->_options['server_id'];
-        $tmp = Zend_Json::decode($this->_couchbase[$server]->get($id));
+        $tmp = Common_Json::decode($this->_couchbase[$server]->get($id));
         if (isset($tmp[0], $tmp[1])) {
             return (int)$tmp[1];
         }
@@ -399,7 +399,7 @@ class Common_Cache_Backend_Couchbase extends Zend_Cache_Backend implements Zend_
     public function getMetadatas($id)
     {
         $server = $this->_options['server_id'];
-        $tmp = Zend_Json::decode($this->_couchbase[$server]->get($id));
+        $tmp = Common_Json::decode($this->_couchbase[$server]->get($id));
         if (isset($tmp[0], $tmp[1], $tmp[2])) {
             $data     = $tmp[0];
             $mtime    = $tmp[1];
@@ -424,7 +424,7 @@ class Common_Cache_Backend_Couchbase extends Zend_Cache_Backend implements Zend_
     public function touch($id, $extraLifetime)
     {
         $server = $this->_options['server_id'];
-        $tmp = Zend_Json::decode($this->_couchbase[$server]->get($id));
+        $tmp = Common_Json::decode($this->_couchbase[$server]->get($id));
         if (isset($tmp[0], $tmp[1], $tmp[2])) {
             $data     = $tmp[0];
             $mtime    = $tmp[1];

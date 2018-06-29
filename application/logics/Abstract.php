@@ -17,12 +17,34 @@
  *
  * @category   Zend
  * @package    Logic
+ * @method void setApplicationUserPaymentMapper(Application_Model_ApplicationUserPaymentMapper $mapper) Application_Model_ApplicationUserPaymentMapperのオブジェクトをセットします
+ * @method Application_Model_ApplicationUserPaymentMapper getApplicationUserPaymentMapper(string $dbSectionName) Application_Model_ApplicationUserPaymentMapperのオブジェクトを返します
+ * @method void setApplicationUserPaymentItemMapper(Application_Model_ApplicationUserPaymentItemMapper $mapper) アプリケーションユーザペイメントアイテムMapperのオブジェクトをセットします
+ * @method Application_Model_ApplicationUserPaymentItemMapper getApplicationUserPaymentItemMapper(string $dbSectionName) アプリケーションユーザペイメントアイテムMapperのオブジェクトを返します
+ * @method void setApplicationUserCurrencyMapper(Application_Model_ApplicationUserCurrencyMapper $mapper) アプリケーションユーザ通貨Mapperをセットします
+ * @method Application_Model_ApplicationUserCurrencyMapper getApplicationUserCurrencyMapper(string $dbSectionName) アプリケーションユーザ通貨Mapperを返します
+ * @method void setApplicationUserPaymentCancelLogMapper(Application_Model_ApplicationUserPaymentCancelLogMapper $mapper) アプリケーションユーザペイメントキャンセルログMapperをセットします
+ * @method Application_Model_ApplicationUserPaymentCancelLogMapper getApplicationUserPaymentCancelLogMapper(string $dbSectionName) アプリケーションユーザペイメントキャンセルログMapperを返します
  * @method void setApplicationUser(Application_Model_ApplicationUser $model) アプリケーションユーザのオブジェクトをセットします
  * @method Application_Model_ApplicationUser getApplicationUser() アプリケーションユーザのオブジェクトを返します
+ * @method void setApplicationUserPayment(Application_Model_ApplicationUserPayment $model) アプリケーションユーザペイメントのオブジェクトをセットします
+ * @method Application_Model_ApplicationUserPayment getApplicationUserPayment() アプリケーションユーザペイメントのオブジェクトを返します
+ * @method void setApplicationUserPaymentItem(Application_Model_ApplicationUserPaymentItem $model) アプリケーションユーザペイメントアイテムのオブジェクトをセットします
+ * @method Application_Model_ApplicationUserPaymentItem getApplicationUserPaymentItem() アプリケーションユーザペイメントアイテムのオブジェクトを返します
+ * @method void setApplicationUserTargetCurrencyPaymentItem(Application_Model_ApplicationUserTargetCurrencyPaymentItem $model) アプリケーションユーザターゲット通貨ペイメントアイテムのオブジェクトをセットします
+ * @method Application_Model_ApplicationUserTargetCurrencyPaymentItem getApplicationUserTargetCurrencyPaymentItem() アプリケーションユーザターゲット通貨ペイメントアイテムのオブジェクトを返します
+ * @method void setCurrencyPaymentLogic(Logic_Payment_Trade_CurrencyPayment $logic) 通貨消費ロジックをセットします
+ * @method Logic_Payment_Trade_CurrencyPayment getCurrencyPaymentLogic() 通貨消費ロジックのオブジェクトを返します
  * @method void setApplicationLogic(Logic_Application $logic) アプリケーションロジックをセットします
  * @method Logic_Application getApplicationLogic() アプリケーションロジックのオブジェクトを返します
  * @method void setApplicationUserLogic(Logic_ApplicationUser $logic) アプリケーションユーザロジックをセットします
  * @method Logic_ApplicationUser getApplicationUserLogic() アプリケーションユーザロジックのオブジェクトを返します
+ * @method void setApplicationUserTargetProductPaymentItemMapper(Application_Model_ApplicationUserTargetProductPaymentItemMapper $mapper) アプリケーションユーザターゲット商品ペイメントアイテムMapperをセットします
+ * @method Application_Model_ApplicationUserTargetProductPaymentItemMapper getApplicationUserTargetProductPaymentItemMapper(string $dbSectionName) アプリケーションユーザターゲット商品ペイメントアイテムMapperを返します
+ * @method void setApplicationUserCurrencyPaymentItemMapper(Application_Model_ApplicationUserCurrencyPaymentItemMapper $mapper) アプリケーションユーザ通貨ペイメントアイテムMapperをセットします
+ * @method Application_Model_ApplicationUserCurrencyPaymentItemMapper getApplicationUserCurrencyPaymentItemMapper(string $dbSectionName) アプリケーションユーザ通貨ペイメントアイテムMapperを返します
+ * @method void setApplicationUserTargetCurrencyPaymentItemMapper(Application_Model_ApplicationUserTargetCurrencyPaymentItemMapper $mapper) アプリケーションユーザターゲット通貨ペイメントアイテムMapperをセットします
+ * @method Application_Model_ApplicationUserTargetCurrencyPaymentItemMapper getApplicationUserTargetCurrencyPaymentItemMapper(string $dbSectionName) アプリケーションユーザターゲット通貨ペイメントアイテムMapperを返します
  */
 abstract class Logic_Abstract
 {
@@ -56,6 +78,97 @@ abstract class Logic_Abstract
      * @var string FILTER_OP_CONTAINS_FORMAT
      */
     const FILTER_OP_CONTAINS_FORMAT = "%%%s%%";
+
+    /**
+     * コレクション定数名：アプリケーションユーザ通貨
+     *
+     * @var string COLLECTION_APPLICATION_USER_CURRENCY
+     */
+    const COLLECTION_APPLICATION_USER_CURRENCY = 'applicationUserCurrency';
+
+    /**
+     * ペイメント種別：購入
+     *
+     * @var int PAYMENT_TYPE_CREDIT
+     */
+    const PAYMENT_TYPE_CREDIT = 10;
+
+    /**
+     * ペイメント種別：ボーナス
+     *
+     * @var int PAYMENT_TYPE_BONUS
+     */
+    const PAYMENT_TYPE_BONUS = 11;
+
+    /**
+     * ペイメント種別：両替
+     *
+     * @var int PAYMENT_TYPE_EXCHANGE
+     */
+    const PAYMENT_TYPE_EXCHANGE = 20;
+
+    /**
+     * ペイメント種別：消費
+     *
+     * @var int PAYMENT_TYPE_PAYMENT
+     */
+    const PAYMENT_TYPE_PAYMENT = 30;
+
+    /**
+     * ペイメントステータス：開始
+     *
+     * @var int PAYMENT_STATUS_START
+     */
+    const PAYMENT_STATUS_START = 0;
+
+    /**
+     * ペイメントステータス：エラー
+     *
+     * @var int PAYMENT_STATUS_ERROR
+     */
+    const PAYMENT_STATUS_ERROR = 1;
+
+    /**
+     * ペイメントステータス：確認
+     *
+     * @var int PAYMENT_STATUS_CONFIRM
+     */
+    const PAYMENT_STATUS_CONFIRM = 2;
+
+    /**
+     * ペイメントステータス：注文
+     *
+     * @var int PAYMENT_STATUS_ORDER
+     */
+    const PAYMENT_STATUS_ORDER = 3;
+
+    /**
+     * ペイメントステータス：キャンセル
+     *
+     * @var int PAYMENT_STATUS_CANCEL
+     */
+    const PAYMENT_STATUS_CANCEL = 9;
+
+    /**
+     * ペイメントステータス：取消
+     *
+     * @var int PAYMENT_STATUS_VOID
+     */
+    const PAYMENT_STATUS_VOID = 11;
+
+    /**
+     * ペイメントステータス：完了
+     *
+     * @var int PAYMENT_STATUS_COMPLETE
+     */
+    const PAYMENT_STATUS_COMPLETE = 10;
+
+    /**
+     * 外部プラットフォーム連携インスタンスを取得する際のキーのプレフィックス(application.ini)
+     *
+     * @var string
+     */
+    const EXTERNAL_CONFIG_KEY_PREFIX = 'app';
 
     /**
      * @var array
@@ -135,6 +248,13 @@ abstract class Logic_Abstract
      * statusの許可パラメータリスト
      */
     protected $_statusAllowList = array(0, 1, 6);
+
+    /**
+     * 無償通貨扱いの有償通貨単価
+     * 
+     * @var string
+     */
+    protected $_bonusUnitPrice = null;
 
     /**
      * Application_Model_ApplicationMapperのオブジェクトを返します
@@ -446,6 +566,32 @@ abstract class Logic_Abstract
     }
 
     /**
+     * プラットフォームIDとデバイスIDの組み合わせが正しいかを確認する
+     *
+     * @param array $params platformIdとdeviceIdの連想配列
+     * @param string $expectPlatformId 期待するプラットフォームID
+     * @param string $expectDeviceId 期待するデバイスID
+     * @return boolean
+     */
+    public static function isPlatformDevicePair(array $params, $expectPlatformId, $expectDeviceId = '')
+    {
+        $platformId = $params['platformId'];
+        $deviceId   = isset($params['deviceId']) ? $params['deviceId'] : '';
+
+        switch ($platformId) {
+
+            case $expectPlatformId:
+
+                switch ($deviceId) {
+                    case $expectDeviceId:
+                        return TRUE;
+                }
+        }
+
+        return FALSE;
+    }
+
+    /**
      * アクセサマジックメソッド
      *
      * 下記用途のアクセサに対応しています。
@@ -658,12 +804,48 @@ abstract class Logic_Abstract
             case 409:
                 $exception = 'Common_Exception_AlreadyExists';
                 break;
+            case 412:
+                // 前提条件に一致しない場合のステータスコード
+                //   例) 異なるプラットフォームで処理していた決済情報が存在する場合のエラー
+                $exception = 'Common_Exception_PreconditionFailed';
+                break;
+            case 422:
+                // レシート検証エラー
+                $exception = 'Common_Exception_Verify';
+                break;
             default :
                 break;
         }
 
         // 例外とエラーメッセージをthrowする
         throw new $exception($errorMessage, $statusCode);
+    }
+
+    /**
+     * 無償通貨扱いの有償通貨単価を取得します。
+     * 
+     * application.ini に該当の設定がなかったり、設定値が無効な場合は int 0 を返却します。
+     * これは「無償通貨は単価ゼロ」という互換性便宜のためです。
+     * 
+     * @return mixed 無償通貨扱いの有償通貨単価
+     */
+    public function getBonusUnitPrice($applicationId = NULL, $platformId = NULL, $deviceId = NULL, $ratingId = NULL)
+    {
+        $applicationId = $applicationId ?? $this->getApplicationUser()->getApplicationId();
+        $platformId    = $platformId ?? $this->pickUpPlatformId();
+        $deviceId      = $deviceId ?? $this->pickUpDeviceId();
+        $ratingId      = $ratingId ?? $this->pickUpRatingId();
+
+        $platformConfigName = Logic_Payment_FactoryAbstract::getPlatformConfigName($platformId, $deviceId, $ratingId);
+        $config             = Zend_Registry::get('apiPayment_config');
+        $appConfigKey       = 'app' . $applicationId;
+        // 特に重い処理でもないのでシングルトン的にはしない
+        if (!isset($config[$appConfigKey][$platformConfigName]['bonusUnitPrice'])) {
+            return 0;
+        }
+        $this->_bonusUnitPrice = $config[$appConfigKey][$platformConfigName]['bonusUnitPrice'];
+
+        return $this->_bonusUnitPrice;
     }
 
 }

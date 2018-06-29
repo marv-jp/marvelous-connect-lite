@@ -486,4 +486,14 @@ class Common_Http_Client extends Zend_Http_Client
         $this->_platformName = $platformName;
     }
 
+    /**
+     * HTTPヘッダを返す
+     * 
+     * @return array
+     */
+    public function getHeaders()
+    {
+        return $this->headers;
+    }
+
 }
